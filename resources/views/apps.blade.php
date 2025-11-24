@@ -18,7 +18,12 @@
     <div class="catalog-main">
         @forelse($products as $product)
         <div class="product-card">
-            <img src="/icon/{{ $product->platform ?? 'default.png' }}" alt="{{ $product->platform }}">
+            <img
+                src="{{ $product->logo
+                    ? asset('logo/' . $product->logo)
+                    : asset('icon/' . ($product->platform ?? 'default.png')) }}"
+                alt="{{ $product->nama_produk }}"
+                class="prod-logo">
             <div class="prod-title">{{ $product->nama_produk }}</div>
             <span class="badge-cat">{{ $product->category->nama_kategori ?? 'Kategori' }}</span>
             <div class="prod-type">{{ ucfirst($product->tipe_akun) }}</div>
@@ -29,7 +34,6 @@
             <button class="prod-btn">Order</button>
             <button class="prod-btn-detail" onclick="showModal({{ $product->id }})">Detail</button>
         </div>
-        <!-- Modal bisa dibuat manual (javascript sederhana) -->
         @empty
         <p>Belum ada produk.</p>
         @endforelse
