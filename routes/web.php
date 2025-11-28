@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
 
-Route::get('/', [HomeController::class, 'index']);
-Route::get('/apps', [ProductController::class, 'index']);
+// Halaman Utama
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
+// Halaman Detail Produk
+Route::get('/product/{id}', [ProductController::class, 'show'])->name('product.show');

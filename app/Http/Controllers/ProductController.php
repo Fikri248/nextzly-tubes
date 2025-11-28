@@ -3,14 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use App\Models\Category;
+use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function show($id)
     {
-        $products = Product::with('category')->where('status', 'tersedia')->paginate(12);
-        $categories = Category::all();
-        return view('apps', compact('products', 'categories'));
+        // Cari produk berdasarkan ID, jika tidak ketemu tampilkan 404
+        $product = Product::findOrFail($id);
+
+        // Tampilkan view detail
+        return view('product_detail', compact('product'));
     }
 }
