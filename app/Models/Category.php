@@ -9,16 +9,10 @@ class Category extends Model
 {
     use HasFactory;
 
-    protected $table = 'categories';
+    protected $fillable = ['nama_kategori', 'deskripsi'];
 
-    protected $fillable = [
-        'nama_kategori',
-        'deskripsi',
-    ];
-
-    // Relasi ke produk
     public function products()
     {
-        return $this->hasMany(Product::class, 'category_id');
+        return $this->hasMany(Product::class, 'kategori', 'nama_kategori');
     }
 }

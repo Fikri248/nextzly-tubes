@@ -6,24 +6,25 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up()
+    public function up(): void
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('category_id')->constrained()->onDelete('cascade');
             $table->string('nama_produk');
-            $table->enum('tipe_akun', ['invite_email', 'family_plan', 'sharing_user', 'personal']);
-            $table->decimal('harga', 10, 2);
-            $table->integer('durasi'); // dalam hari
-            $table->integer('stok');
+            $table->string('logo');
+            $table->string('kategori');
+            $table->string('tipe_akun')->default('premium');
             $table->text('deskripsi')->nullable();
-            $table->enum('status', ['tersedia', 'habis'])->default('tersedia');
-            $table->string('platform')->nullable(); // Netflix, Spotify, dll
+            $table->decimal('harga', 10, 2);
+            $table->integer('durasi')->default(30);
+            $table->integer('stok')->default(100);
+            $table->enum('status', ['tersedia', 'habis', 'nonaktif'])->default('tersedia');
+            $table->json('paket_harga')->nullable();
             $table->timestamps();
         });
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('products');
     }

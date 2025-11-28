@@ -10,20 +10,25 @@ class HomeController extends Controller
 {
     public function index(Request $request)
     {
-        // Query dasar: produk yang tersedia
-        $query = Product::where('status', 'tersedia');
+        $search = $request->input('search');
+        $kategori = $request->input('kategori');
 
-        // Filter: Jika ada parameter 'category' di URL
-        if ($request->has('category') && $request->category != '') {
-            $query->where('category_id', $request->category);
+        $query = Product::with('category');
+
+        // Search
+        if ($search) {
+            $query->where('nama_produk', 'like', '%' . $search . '%')
+                  ->orWhere('deskripsi', 'like', '%' . $search . '%');
         }
 
-        // Ambil 16 produk (4x4 grid), urutkan sesuai kolom 'urutan'
-        $products = $query->orderBy('urutan', 'asc')->take(16)->get();
+        // Filter kategori (pakai category_id, bukan kategori)
+        if ($kategori && $kategori !== 'all') {
+            $query->where('category_id', $kategori);  // ← PERBAIKAN
+        }
 
-        // Ambil semua kategori untuk tombol filter
-        $categories = Category::all();
+        $products = $query->orderBy('created_at', 'desc')->get();
+        $categories = Category::orderBy('nama_kategori', 'asc')->get();
 
-        return view('home', compact('products', 'categories'));
+        return view('home', compact('products', 'categories', 'search', 'kategori'));
     }
 }
