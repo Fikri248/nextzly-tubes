@@ -14,25 +14,37 @@ class CategorySeeder extends Seeder
                 'nama_kategori' => 'Streaming Video',
                 'deskripsi' => 'Platform streaming film dan series',
                 'created_at' => now(),
-                'updated_at' => now(),
+                'updated_at' => now()
             ],
             [
                 'nama_kategori' => 'Streaming Music',
                 'deskripsi' => 'Platform streaming musik',
                 'created_at' => now(),
-                'updated_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'nama_kategori' => 'Game',
+                'deskripsi' => 'Layanan game dan top-up',
+                'created_at' => now(),
+                'updated_at' => now()
             ],
             [
                 'nama_kategori' => 'Cloud Storage',
                 'deskripsi' => 'Layanan penyimpanan cloud',
                 'created_at' => now(),
-                'updated_at' => now(),
+                'updated_at' => now()
             ],
             [
                 'nama_kategori' => 'Productivity',
-                'deskripsi' => 'Tools produktivitas dan kolaborasi',
+                'deskripsi' => 'Tools produktivitas dan editing',
                 'created_at' => now(),
-                'updated_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'nama_kategori' => 'AI Tools',
+                'deskripsi' => 'Aplikasi berbasis kecerdasan buatan',
+                'created_at' => now(),
+                'updated_at' => now()
             ],
         ]);
     }

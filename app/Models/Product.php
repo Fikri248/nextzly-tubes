@@ -9,25 +9,27 @@ class Product extends Model
 {
     use HasFactory;
 
-    // Nama tabel (Optional, kalau nama default 'products' sudah sesuai)
-    protected $table = 'products';
-
-    // Kolom yang boleh diisi
     protected $fillable = [
-        'category_id',
         'nama_produk',
+        'logo',
+        'category_id',
         'tipe_akun',
+        'deskripsi',
         'harga',
         'durasi',
         'stok',
-        'deskripsi',
         'status',
         'platform',
+        'paket_harga',
     ];
 
-    // Relasi ke kategori
+    protected $casts = [
+        'paket_harga' => 'array',
+        'harga' => 'decimal:2',
+    ];
+
     public function category()
     {
-        return $this->belongsTo(Category::class, 'category_id');
+        return $this->belongsTo(Category::class);
     }
 }

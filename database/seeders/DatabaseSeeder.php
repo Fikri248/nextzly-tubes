@@ -6,14 +6,11 @@ use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         $this->call([
             CategorySeeder::class,
-            AdminSeeder::class,
             ProductSeeder::class,
-            CustomerSeeder::class,
-            TransactionSeeder::class,
         ]);
     }
 }
