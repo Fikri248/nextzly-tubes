@@ -14,7 +14,7 @@
         <a class="navbar-brand" href="{{ route('home') }}">Nextzly</a>
         <div class="navbar-menu">
             <a href="{{ route('home') }}">Home</a>
-            <a href="#">Contact</a>
+            <a href="#contact">Contact</a>
         </div>
     </nav>
 

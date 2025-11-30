@@ -72,5 +72,29 @@
         @endforelse
     </div>
 
+    {{-- CONTACT SECTION --}}
+    <div id="contact" class="contact-section">
+        <h2 class="contact-title">Contact & Support</h2>
+        <p class="contact-subtitle">Hubungi Nextzly melalui platform berikut:</p>
+
+        <div class="contact-links">
+            <a href="https://wa.me/628213256634" target="_blank" class="contact-badge">
+                WhatsApp Support
+            </a>
+
+            <a href="https://shopee.co.id/nextizen" target="_blank" class="contact-badge">
+                Shopee
+            </a>
+
+            <a href="https://instagram.com/nextizen__" target="_blank" class="contact-badge">
+                Instagram
+            </a>
+
+            <a href="https://www.tiktok.com/@nextizen" target="_blank" class="contact-badge">
+                TikTok
+            </a>
+        </div>
+    </div>
+
 </div>
 @endsection
