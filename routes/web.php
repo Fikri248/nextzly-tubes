@@ -17,7 +17,7 @@ Route::post('/admin/login', [AdminAuthController::class, 'login'])
 // route yang butuh login admin
 Route::middleware('admin.auth')->prefix('admin')->group(function () {
     Route::get('/dashboard', function () {
-        return 'Halo, ini halaman Dashboard admin (dummy).';
+        return view('admin.dashboard');
     })->name('admin.dashboard');
 
 Route::middleware('admin.auth')->post('/admin/logout', [AdminAuthController::class, 'logout'])
