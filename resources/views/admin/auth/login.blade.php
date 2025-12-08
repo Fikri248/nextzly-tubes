@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,6 +18,7 @@
         }
     </style>
 </head>
+
 <body class="min-h-screen bg-slate-950 flex items-center justify-center px-4">
 
     {{-- KARTU LOGIN --}}
@@ -31,7 +33,7 @@
             </p>
         </div>
 
-        {{-- PESAN ERROR--}}
+        {{-- PESAN ERROR --}}
         @if (session('error'))
             <div class="mb-4 text-sm text-red-300 bg-red-900/40 border border-red-700 rounded-xl px-4 py-2">
                 {{ session('error') }}
@@ -39,11 +41,7 @@
         @endif
 
         {{-- FORM LOGIN --}}
-        <form
-            method="POST"
-            action="#"
-            class="space-y-4"
-        >
+        <form method="POST" action="{{ route('admin.login.attempt') }}" class="space-y-4">
             @csrf
 
             {{-- EMAIL / USERNAME --}}
@@ -51,15 +49,10 @@
                 <label for="email" class="block text-sm font-medium text-slate-200 mb-1">
                     Email / Username
                 </label>
-                <input
-                    type="text"
-                    id="email"
-                    name="email"
+                <input type="text" id="email" name="email"
                     class="w-full rounded-2xl bg-slate-800 border border-slate-600 text-slate-100 text-sm px-3 py-2.5
                            focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400"
-                    placeholder="admin@nextzly.com"
-                    required
-                >
+                    placeholder="admin@nextzly.com" required>
             </div>
 
             {{-- PASSWORD --}}
@@ -67,37 +60,27 @@
                 <label for="password" class="block text-sm font-medium text-slate-200 mb-1">
                     Password
                 </label>
-                <input
-                    type="password"
-                    id="password"
-                    name="password"
+                <input type="password" id="password" name="password"
                     class="w-full rounded-2xl bg-slate-800 border border-slate-600 text-slate-100 text-sm px-3 py-2.5
                            focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400"
-                    placeholder="Masukkan password admin"
-                    required
-                >
+                    placeholder="Masukkan password admin" required>
             </div>
 
             {{-- REMEMBER ME --}}
             <div class="flex items-center justify-between text-xs text-slate-300">
                 <label class="inline-flex items-center gap-2">
-                    <input
-                        type="checkbox"
-                        name="remember"
+                    <input type="checkbox" name="remember"
                         class="rounded border-slate-500 bg-slate-800 text-emerald-400
-                               focus:ring-emerald-400 focus:ring-offset-0"
-                    >
+                               focus:ring-emerald-400 focus:ring-offset-0">
                     <span>Ingat saya sebagai admin</span>
                 </label>
             </div>
 
             {{-- TOMBOL LOGIN --}}
-            <button
-                type="submit"
+            <button type="submit"
                 class="w-full mt-2 inline-flex items-center justify-center rounded-2xl bg-emerald-500
                        hover:bg-emerald-400 text-slate-950 font-semibold text-sm py-2.5
-                       transition-all duration-150 shadow-lg shadow-emerald-500/30"
-            >
+                       transition-all duration-150 shadow-lg shadow-emerald-500/30">
                 Login Admin
             </button>
         </form>
@@ -108,4 +91,5 @@
         </p>
     </div>
 </body>
+
 </html>
