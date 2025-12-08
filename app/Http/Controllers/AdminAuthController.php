@@ -33,7 +33,9 @@ class AdminAuthController extends Controller
         $request->session()->put('admin_name', $admin->name);
         $request->session()->put('admin_role', $admin->role);
 
-        return redirect()->route('admin.dashboard');
+        return redirect()
+            ->route('admin.dashboard')
+            ->with('welcome', 'Selamat datang, ' . $admin->name . ' 👋');
     }
     public function logout(Request $request)
     {
