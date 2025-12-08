@@ -26,7 +26,7 @@
         {{-- LOGO / TITLE --}}
         <div class="text-center mb-6">
             <h1 class="text-2xl font-bold text-white tracking-wide">
-                Nextzly Admin
+                Nextzly Login
             </h1>
             <p class="text-sm text-slate-300 mt-1">
                 Silakan login untuk mengelola akun digital Nextzly.
@@ -47,7 +47,7 @@
             {{-- EMAIL / USERNAME --}}
             <div>
                 <label for="email" class="block text-sm font-medium text-slate-200 mb-1">
-                    Email / Username
+                    Email
                 </label>
                 <input type="text" id="email" name="email"
                     class="w-full rounded-2xl bg-slate-800 border border-slate-600 text-slate-100 text-sm px-3 py-2.5
