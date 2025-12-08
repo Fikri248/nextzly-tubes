@@ -35,4 +35,13 @@ class AdminAuthController extends Controller
 
         return redirect()->route('admin.dashboard');
     }
+    public function logout(Request $request)
+    {
+        // hapus session khusus admin
+        $request->session()->forget(['admin_id', 'admin_name', 'admin_role']);
+
+        return redirect()
+            ->route('admin.login')
+            ->with('error', 'Anda telah logout dari akun admin.');
+    }
 }
