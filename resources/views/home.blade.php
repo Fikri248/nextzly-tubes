@@ -12,14 +12,15 @@
 
             {{-- SEARCH BAR --}}
             <div class="search-container">
-                <form action="{{ route('home') }}" method="GET" class="search-form">
+                <form action="{{ route('homepage') }}" method="GET" class="search-form">
+
                     <div class="search-box">
                         <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
                         <input type="text" name="search" class="search-input" placeholder="Cari produk..." value="{{ $search ?? '' }}">
                         @if($search)
-                            <a href="{{ route('home') }}" class="search-clear">×</a>
+                            <a href="{{ route('homepage') }}" class="search-clear">×</a>
                         @endif
                     </div>
                     <button type="submit" class="search-button">Cari</button>
@@ -38,11 +39,11 @@
 
     {{-- FILTER KATEGORI --}}
     <div class="features-row">
-        <a href="{{ route('home') }}" class="feature-card {{ !$kategori || $kategori == 'all' ? 'active' : '' }}">
+        <a href="{{ route('homepage') }}" class="feature-card {{ !$kategori || $kategori == 'all' ? 'active' : '' }}">
             Semua
         </a>
         @foreach($categories as $cat)
-            <a href="{{ route('home', ['kategori' => $cat->id]) }}"
+            <a href="{{ route('homepage', ['kategori' => $cat->id]) }}"
                class="feature-card {{ $kategori == $cat->id ? 'active' : '' }}">
                 {{ $cat->nama_kategori }}
             </a>
@@ -67,7 +68,7 @@
                 <div class="no-results-icon">🔍</div>
                 <h3>Produk tidak ditemukan</h3>
                 <p>Coba kata kunci lain atau lihat semua produk</p>
-                <a href="{{ route('home') }}" class="btn-back-home">Lihat Semua Produk</a>
+                <a href="{{ route('homepage') }}" class="btn-back-home">Lihat Semua Produk</a>
             </div>
         @endforelse
     </div>

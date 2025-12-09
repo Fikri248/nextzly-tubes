@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Admin - Nextzly</title>
 
-    {{-- Tailwind --}}
+    {{-- Tailwind CDN --}}
     <script src="https://cdn.tailwindcss.com"></script>
 
     {{-- Font --}}
@@ -17,79 +17,125 @@
             font-family: "Montserrat", sans-serif;
         }
     </style>
+
+    {{-- Bootstrap Icons --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 </head>
 
-<body class="min-h-screen bg-slate-950 flex items-center justify-center px-4">
+<body class="min-h-screen bg-slate-950 text-slate-50 flex items-center justify-center">
 
-    {{-- KARTU LOGIN --}}
-    <div class="w-full max-w-md bg-slate-900/80 border border-slate-700 rounded-3xl shadow-2xl p-8">
-        {{-- LOGO / TITLE --}}
-        <div class="text-center mb-6">
-            <h1 class="text-2xl font-bold text-white tracking-wide">
-                Nextzly Login
+    <div class="w-full max-w-md px-4">
+        {{-- KARTU LOGIN --}}
+        <div class="bg-slate-900/80 border border-slate-700 rounded-3xl p-6 md:p-8 shadow-2xl backdrop-blur">
+
+            {{-- BACK TO HOME --}}
+            <a href="{{ route('homepage') }}"
+                class="inline-flex items-center text-xs text-slate-400 hover:text-slate-200 mb-4">
+                <i class="bi bi-arrow-left mr-1"></i>
+                <span>Kembali ke Home</span>
+            </a>
+
+            {{-- HEADER --}}
+            <h1 class="text-xl md:text-2xl font-semibold text-slate-50 mb-1">
+                Login Admin
             </h1>
-            <p class="text-sm text-slate-300 mt-1">
-                Silakan login untuk mengelola akun digital Nextzly.
+            <p class="text-xs text-slate-400 mb-5">
+                Masuk untuk mengelola produk digital dan transaksi Nextzly.
+            </p>
+
+            {{-- ALERT DARI SESSION --}}
+            @if (session('error'))
+                <div
+                    class="mb-4 rounded-2xl border border-emerald-500/40 bg-emerald-500/10 px-3 py-2.5 text-xs text-emerald-300 flex items-start gap-2">
+                    <i class="bi bi-info-circle-fill mt-[2px]"></i>
+                    <span>{{ session('error') }}</span>
+                </div>
+            @endif
+
+            {{-- ERROR LOGIN KHUSUS --}}
+            @if ($errors->has('login_error'))
+                <div
+                    class="mb-4 rounded-2xl border border-red-500/40 bg-red-500/10 px-3 py-2.5 text-xs text-red-300 flex items-start gap-2">
+                    <i class="bi bi-exclamation-triangle-fill mt-[2px]"></i>
+                    <span>{{ $errors->first('login_error') }}</span>
+                </div>
+            @endif
+
+            {{-- ERROR VALIDASI FIELD --}}
+            @if ($errors->any() && !$errors->has('login_error'))
+                <div class="mb-4 rounded-2xl border border-red-500/40 bg-red-500/10 px-3 py-2.5 text-xs text-red-300">
+                    <span>Periksa kembali data yang diinput.</span>
+                </div>
+            @endif
+
+            {{-- FORM LOGIN --}}
+            <form action="{{ route('admin.login.attempt') }}" method="POST" class="space-y-4">
+                @csrf
+
+                {{-- EMAIL --}}
+                <div class="space-y-1">
+                    <label for="email" class="text-xs font-medium text-slate-200">
+                        Email Admin
+                    </label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-3 flex items-center text-slate-500 text-sm">
+                            <i class="bi bi-envelope"></i>
+                        </span>
+                        <input type="email" id="email" name="email" value="{{ old('email') }}" required
+                            class="w-full bg-slate-900/70 border border-slate-700 rounded-2xl pl-9 pr-3 py-2.5
+                               text-sm text-slate-50 placeholder:text-slate-500
+                               focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500">
+                    </div>
+                    @error('email')
+                        <p class="text-[11px] text-red-400 mt-0.5">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- PASSWORD --}}
+                <div class="space-y-1">
+                    <label for="password" class="text-xs font-medium text-slate-200">
+                        Password
+                    </label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-3 flex items-center text-slate-500 text-sm">
+                            <i class="bi bi-lock"></i>
+                        </span>
+                        <input type="password" id="password" name="password" required
+                            class="w-full bg-slate-900/70 border border-slate-700 rounded-2xl pl-9 pr-3 py-2.5
+                               text-sm text-slate-50 placeholder:text-slate-500
+                               focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500">
+                    </div>
+                    @error('password')
+                        <p class="text-[11px] text-red-400 mt-0.5">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- REMEMBER ME (opsional) --}}
+                <div class="flex items-center justify-between pt-1">
+                    <label class="inline-flex items-center gap-2 text-[11px] text-slate-400">
+                        <input type="checkbox" name="remember"
+                            class="rounded border-slate-600 bg-slate-900/70 text-sky-500 focus:ring-sky-500">
+                        <span>Ingat saya</span>
+                    </label>
+                </div>
+
+                {{-- BUTTON SUBMIT --}}
+                <button type="submit"
+                    class="w-full mt-2 inline-flex items-center justify-center gap-2 rounded-2xl
+                           bg-sky-500 hover:bg-sky-400 text-white text-sm font-semibold py-2.5
+                           shadow-lg shadow-sky-500/30 transition">
+                    <i class="bi bi-box-arrow-in-right text-sm"></i>
+                    <span>Login sebagai Admin</span>
+                </button>
+            </form>
+
+            {{-- FOOTNOTE KECIL --}}
+            <p class="mt-4 text-[10px] text-slate-500 text-center">
+                Akses ini khusus untuk administrator Nextzly.
             </p>
         </div>
-
-        {{-- PESAN ERROR --}}
-        @if (session('error'))
-            <div class="mb-4 text-sm text-red-300 bg-red-900/40 border border-red-700 rounded-xl px-4 py-2">
-                {{ session('error') }}
-            </div>
-        @endif
-
-        {{-- FORM LOGIN --}}
-        <form method="POST" action="{{ route('admin.login.attempt') }}" class="space-y-4">
-            @csrf
-
-            {{-- EMAIL / USERNAME --}}
-            <div>
-                <label for="email" class="block text-sm font-medium text-slate-200 mb-1">
-                    Email
-                </label>
-                <input type="text" id="email" name="email"
-                    class="w-full rounded-2xl bg-slate-800 border border-slate-600 text-slate-100 text-sm px-3 py-2.5
-                           focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400"
-                    placeholder="admin@nextzly.com" required>
-            </div>
-
-            {{-- PASSWORD --}}
-            <div>
-                <label for="password" class="block text-sm font-medium text-slate-200 mb-1">
-                    Password
-                </label>
-                <input type="password" id="password" name="password"
-                    class="w-full rounded-2xl bg-slate-800 border border-slate-600 text-slate-100 text-sm px-3 py-2.5
-                           focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400"
-                    placeholder="Masukkan password admin" required>
-            </div>
-
-            {{-- REMEMBER ME --}}
-            <div class="flex items-center justify-between text-xs text-slate-300">
-                <label class="inline-flex items-center gap-2">
-                    <input type="checkbox" name="remember"
-                        class="rounded border-slate-500 bg-slate-800 text-emerald-400
-                               focus:ring-emerald-400 focus:ring-offset-0">
-                    <span>Ingat saya sebagai admin</span>
-                </label>
-            </div>
-
-            {{-- TOMBOL LOGIN --}}
-            <button type="submit"
-                class="w-full mt-2 inline-flex items-center justify-center rounded-2xl bg-emerald-500
-                       hover:bg-emerald-400 text-slate-950 font-semibold text-sm py-2.5
-                       transition-all duration-150 shadow-lg shadow-emerald-500/30">
-                Login Admin
-            </button>
-        </form>
-
-        {{-- FOOTER KECIL --}}
-        <p class="mt-6 text-[11px] text-center text-slate-500">
-            Hanya untuk administrator Nextzly. Akses halaman ini tidak dibuka untuk pelanggan.
-        </p>
     </div>
+
 </body>
 
 </html>
