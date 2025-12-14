@@ -46,8 +46,8 @@
             {{-- ALERT DARI SESSION --}}
             @if (session('error'))
                 <div
-                    class="mb-4 rounded-2xl border border-emerald-500/40 bg-emerald-500/10 px-3 py-2.5 text-xs text-emerald-300 flex items-start gap-2">
-                    <i class="bi bi-info-circle-fill mt-[2px]"></i>
+                    class="mb-4 rounded-2xl border border-red-500/40 bg-red-500/10 px-3 py-2.5 text-xs text-red-300 flex items-start gap-2">
+                    <i class="bi bi-exclamation-circle-fill mt-[2px]"></i>
                     <span>{{ session('error') }}</span>
                 </div>
             @endif
