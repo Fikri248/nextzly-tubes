@@ -9,6 +9,9 @@
     {{-- Tailwind --}}
     <script src="https://cdn.tailwindcss.com"></script>
 
+    {{-- Chart.js --}}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     {{-- Font --}}
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
@@ -136,7 +139,7 @@
 
     <div class="min-h-screen flex flex-col">
 
-        {{-- NAVBAR ATAS - z-index lebih tinggi dari sidebar --}}
+        {{-- NAVBAR ATAS --}}
         <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-8 sticky top-0 z-50">
             <div class="flex items-center gap-3">
                 {{-- Tombol Toggle Sidebar --}}
@@ -237,7 +240,7 @@
 
         <div class="flex flex-1 relative">
 
-            {{-- SIDEBAR - Fixed tapi mulai dari bawah navbar --}}
+            {{-- SIDEBAR --}}
             <aside id="admin-sidebar"
                 class="fixed top-16 left-0 z-40 w-64 h-[calc(100vh-64px)] bg-slate-950 text-slate-100
                        md:translate-x-0 flex flex-col overflow-hidden">
@@ -326,7 +329,7 @@
             {{-- Sidebar Overlay (Mobile) --}}
             <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-30 hidden md:hidden"></div>
 
-            {{-- MAIN CONTENT - dengan margin left untuk sidebar --}}
+            {{-- MAIN CONTENT --}}
             <main class="flex-1 p-4 md:p-8 overflow-y-auto md:ml-64">
 
                 {{-- GRID 4 SUMMARY CARDS --}}
@@ -414,20 +417,87 @@
                     </div>
                 </section>
 
-                {{-- PLACEHOLDER CHART --}}
-                <section class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-                    <h2 class="text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
-                        <i class="bi bi-bar-chart-fill text-slate-400"></i>
-                        Statistik Penjualan per Aplikasi
-                    </h2>
+                {{-- CHARTS GRID - 2 COLUMNS --}}
+                <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
 
-                    <div class="h-64 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 border border-slate-100">
-                        <div class="text-center">
-                            <i class="bi bi-bar-chart text-4xl mb-2"></i>
-                            <p class="text-sm">Grafik akan ditampilkan di sini</p>
-                            <p class="text-xs text-slate-400">(Task 2.3)</p>
+                    {{-- CHART 1: Penjualan per Aplikasi --}}
+                    <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                            <h2 class="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                                <i class="bi bi-bar-chart-fill text-sky-500"></i>
+                                Penjualan per Aplikasi
+                            </h2>
+
+                            {{-- Chart Type Toggle --}}
+                            <div class="flex items-center gap-1">
+                                <button type="button" id="btn-sales-bar"
+                                    class="px-2.5 py-1 text-[10px] font-medium rounded-lg bg-slate-900 text-white transition-all">
+                                    Bar
+                                </button>
+                                <button type="button" id="btn-sales-line"
+                                    class="px-2.5 py-1 text-[10px] font-medium rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all">
+                                    Line
+                                </button>
+                            </div>
                         </div>
+
+                        @if(count($chartLabels) > 0)
+                            <div class="relative h-64">
+                                <canvas id="salesChart"></canvas>
+                            </div>
+                            <div class="mt-4 pt-3 border-t border-slate-100 flex items-center gap-2 text-[10px] text-slate-500">
+                                <span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span>
+                                <span>Jumlah Akun Terjual (Top 10)</span>
+                            </div>
+                        @else
+                            <div class="h-64 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 border border-slate-100">
+                                <div class="text-center">
+                                    <i class="bi bi-inbox text-3xl mb-2"></i>
+                                    <p class="text-xs font-medium">Belum Ada Data</p>
+                                </div>
+                            </div>
+                        @endif
                     </div>
+
+                    {{-- CHART 2: Pendapatan per Aplikasi --}}
+                    <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                            <h2 class="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                                <i class="bi bi-cash-coin text-emerald-500"></i>
+                                Pendapatan per Aplikasi
+                            </h2>
+
+                            {{-- Chart Type Toggle --}}
+                            <div class="flex items-center gap-1">
+                                <button type="button" id="btn-revenue-bar"
+                                    class="px-2.5 py-1 text-[10px] font-medium rounded-lg bg-slate-900 text-white transition-all">
+                                    Bar
+                                </button>
+                                <button type="button" id="btn-revenue-doughnut"
+                                    class="px-2.5 py-1 text-[10px] font-medium rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all">
+                                    Donut
+                                </button>
+                            </div>
+                        </div>
+
+                        @if(count($chartLabels) > 0)
+                            <div class="relative h-64">
+                                <canvas id="revenueChart"></canvas>
+                            </div>
+                            <div class="mt-4 pt-3 border-t border-slate-100 flex items-center gap-2 text-[10px] text-slate-500">
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                                <span>Total Pendapatan dalam Rupiah (Top 10)</span>
+                            </div>
+                        @else
+                            <div class="h-64 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 border border-slate-100">
+                                <div class="text-center">
+                                    <i class="bi bi-inbox text-3xl mb-2"></i>
+                                    <p class="text-xs font-medium">Belum Ada Data</p>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+
                 </section>
 
             </main>
@@ -449,27 +519,22 @@
             sidebarOpen = !sidebarOpen;
 
             if (sidebarOpen) {
-                // Show sidebar
                 sidebar.classList.remove('sidebar-hidden');
                 sidebar.classList.remove('-translate-x-full');
                 sidebarOverlay.classList.add('hidden');
                 toggleIcon.classList.remove('bi-layout-sidebar-inset');
                 toggleIcon.classList.add('bi-list');
-                // Tambah margin ke main content
                 mainContent.classList.add('md:ml-64');
             } else {
-                // Hide sidebar
                 sidebar.classList.add('sidebar-hidden');
                 sidebar.classList.add('-translate-x-full');
                 sidebarOverlay.classList.remove('hidden');
                 toggleIcon.classList.remove('bi-list');
                 toggleIcon.classList.add('bi-layout-sidebar-inset');
-                // Hapus margin dari main content
                 mainContent.classList.remove('md:ml-64');
             }
         }
 
-        // Mobile: Start with sidebar hidden
         if (window.innerWidth < 768) {
             sidebarOpen = false;
             sidebar.classList.add('-translate-x-full');
@@ -501,7 +566,6 @@
 
         profileToggle.addEventListener('click', toggleProfileMenu);
 
-        // Close dropdown when clicking outside
         document.addEventListener('click', function(e) {
             if (!profileToggle.contains(e.target) && !profileMenu.contains(e.target)) {
                 if (profileOpen) {
@@ -528,27 +592,312 @@
             }, 400);
         }
 
-        // Show island on page load
         document.addEventListener('DOMContentLoaded', () => {
             setTimeout(showIsland, 500);
-
-            // Auto hide after 4 seconds
             setTimeout(hideIsland, 4500);
         });
 
         // ===== KEYBOARD SHORTCUTS =====
         document.addEventListener('keydown', function(e) {
-            // ESC to close dropdown/sidebar
             if (e.key === 'Escape') {
                 if (profileOpen) toggleProfileMenu();
                 if (!sidebarOpen && window.innerWidth < 768) toggleSidebar();
             }
-            // Ctrl+B to toggle sidebar
             if (e.ctrlKey && e.key === 'b') {
                 e.preventDefault();
                 toggleSidebar();
             }
         });
+
+        // ===== CHARTS (Task 2.3) =====
+        @if(count($chartLabels) > 0)
+        const chartLabels = @json($chartLabels);
+        const chartDataSales = @json($chartData);
+        const chartDataRevenue = @json($chartRevenue);
+
+        // Format angka ke Rupiah
+        function formatRupiah(value) {
+            return 'Rp ' + value.toLocaleString('id-ID');
+        }
+
+        // ===== CHART 1: PENJUALAN =====
+        const ctxSales = document.getElementById('salesChart').getContext('2d');
+
+        const gradientSales = ctxSales.createLinearGradient(0, 0, 0, 300);
+        gradientSales.addColorStop(0, 'rgba(14, 165, 233, 0.8)');
+        gradientSales.addColorStop(1, 'rgba(14, 165, 233, 0.2)');
+
+        let salesChart = new Chart(ctxSales, {
+            type: 'bar',
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    label: 'Akun Terjual',
+                    data: chartDataSales,
+                    backgroundColor: gradientSales,
+                    borderColor: 'rgba(14, 165, 233, 1)',
+                    borderWidth: 2,
+                    borderRadius: 6,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                        titleColor: '#fff',
+                        bodyColor: '#cbd5e1',
+                        padding: 12,
+                        cornerRadius: 8,
+                        displayColors: false,
+                        callbacks: {
+                            label: (ctx) => 'Terjual: ' + ctx.raw + ' akun'
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            color: '#64748b',
+                            font: { size: 10, family: 'Montserrat' },
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(148, 163, 184, 0.1)' },
+                        ticks: {
+                            color: '#64748b',
+                            font: { size: 10, family: 'Montserrat' },
+                            stepSize: 1
+                        }
+                    }
+                },
+                animation: { duration: 1000, easing: 'easeOutQuart' }
+            }
+        });
+
+        // Toggle Sales Chart Type
+        document.getElementById('btn-sales-bar').addEventListener('click', function() {
+            salesChart.config.type = 'bar';
+            salesChart.data.datasets[0].backgroundColor = gradientSales;
+            salesChart.data.datasets[0].fill = false;
+            salesChart.data.datasets[0].tension = 0;
+            salesChart.update();
+            this.classList.add('bg-slate-900', 'text-white');
+            this.classList.remove('bg-slate-100', 'text-slate-600');
+            document.getElementById('btn-sales-line').classList.remove('bg-slate-900', 'text-white');
+            document.getElementById('btn-sales-line').classList.add('bg-slate-100', 'text-slate-600');
+        });
+
+        document.getElementById('btn-sales-line').addEventListener('click', function() {
+            salesChart.config.type = 'line';
+            salesChart.data.datasets[0].backgroundColor = 'rgba(14, 165, 233, 0.1)';
+            salesChart.data.datasets[0].borderColor = 'rgba(14, 165, 233, 1)';
+            salesChart.data.datasets[0].fill = true;
+            salesChart.data.datasets[0].tension = 0.4;
+            salesChart.data.datasets[0].pointBackgroundColor = 'rgba(14, 165, 233, 1)';
+            salesChart.data.datasets[0].pointRadius = 4;
+            salesChart.update();
+            this.classList.add('bg-slate-900', 'text-white');
+            this.classList.remove('bg-slate-100', 'text-slate-600');
+            document.getElementById('btn-sales-bar').classList.remove('bg-slate-900', 'text-white');
+            document.getElementById('btn-sales-bar').classList.add('bg-slate-100', 'text-slate-600');
+        });
+
+        // ===== CHART 2: PENDAPATAN =====
+        const ctxRevenue = document.getElementById('revenueChart').getContext('2d');
+
+        const gradientRevenue = ctxRevenue.createLinearGradient(0, 0, 0, 300);
+        gradientRevenue.addColorStop(0, 'rgba(16, 185, 129, 0.8)');
+        gradientRevenue.addColorStop(1, 'rgba(16, 185, 129, 0.2)');
+
+        // Warna untuk doughnut chart
+        const doughnutColors = [
+            'rgba(14, 165, 233, 0.8)',   // sky
+            'rgba(16, 185, 129, 0.8)',   // emerald
+            'rgba(139, 92, 246, 0.8)',   // violet
+            'rgba(245, 158, 11, 0.8)',   // amber
+            'rgba(239, 68, 68, 0.8)',    // red
+            'rgba(236, 72, 153, 0.8)',   // pink
+            'rgba(34, 211, 238, 0.8)',   // cyan
+            'rgba(163, 230, 53, 0.8)',   // lime
+            'rgba(251, 146, 60, 0.8)',   // orange
+            'rgba(167, 139, 250, 0.8)',  // purple
+        ];
+
+        let revenueChart = new Chart(ctxRevenue, {
+            type: 'bar',
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    label: 'Pendapatan',
+                    data: chartDataRevenue,
+                    backgroundColor: gradientRevenue,
+                    borderColor: 'rgba(16, 185, 129, 1)',
+                    borderWidth: 2,
+                    borderRadius: 6,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                        titleColor: '#fff',
+                        bodyColor: '#cbd5e1',
+                        padding: 12,
+                        cornerRadius: 8,
+                        displayColors: false,
+                        callbacks: {
+                            label: (ctx) => 'Pendapatan: ' + formatRupiah(ctx.raw)
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            color: '#64748b',
+                            font: { size: 10, family: 'Montserrat' },
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(148, 163, 184, 0.1)' },
+                        ticks: {
+                            color: '#64748b',
+                            font: { size: 10, family: 'Montserrat' },
+                            callback: (value) => 'Rp ' + (value / 1000) + 'K'
+                        }
+                    }
+                },
+                animation: { duration: 1000, easing: 'easeOutQuart' }
+            }
+        });
+
+        // Toggle Revenue Chart Type
+        document.getElementById('btn-revenue-bar').addEventListener('click', function() {
+            revenueChart.destroy();
+            revenueChart = new Chart(ctxRevenue, {
+                type: 'bar',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        label: 'Pendapatan',
+                        data: chartDataRevenue,
+                        backgroundColor: gradientRevenue,
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        borderWidth: 2,
+                        borderRadius: 6,
+                        borderSkipped: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                            titleColor: '#fff',
+                            bodyColor: '#cbd5e1',
+                            padding: 12,
+                            cornerRadius: 8,
+                            displayColors: false,
+                            callbacks: {
+                                label: (ctx) => 'Pendapatan: ' + formatRupiah(ctx.raw)
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                color: '#64748b',
+                                font: { size: 10, family: 'Montserrat' },
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(148, 163, 184, 0.1)' },
+                            ticks: {
+                                color: '#64748b',
+                                font: { size: 10, family: 'Montserrat' },
+                                callback: (value) => 'Rp ' + (value / 1000) + 'K'
+                            }
+                        }
+                    },
+                    animation: { duration: 800, easing: 'easeOutQuart' }
+                }
+            });
+            this.classList.add('bg-slate-900', 'text-white');
+            this.classList.remove('bg-slate-100', 'text-slate-600');
+            document.getElementById('btn-revenue-doughnut').classList.remove('bg-slate-900', 'text-white');
+            document.getElementById('btn-revenue-doughnut').classList.add('bg-slate-100', 'text-slate-600');
+        });
+
+        document.getElementById('btn-revenue-doughnut').addEventListener('click', function() {
+            revenueChart.destroy();
+            revenueChart = new Chart(ctxRevenue, {
+                type: 'doughnut',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        data: chartDataRevenue,
+                        backgroundColor: doughnutColors,
+                        borderColor: '#fff',
+                        borderWidth: 2,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '60%',
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'right',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 8,
+                                font: { size: 9, family: 'Montserrat' },
+                                color: '#64748b'
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                            titleColor: '#fff',
+                            bodyColor: '#cbd5e1',
+                            padding: 12,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: (ctx) => ctx.label + ': ' + formatRupiah(ctx.raw)
+                            }
+                        }
+                    },
+                    animation: { duration: 800, easing: 'easeOutQuart' }
+                }
+            });
+            this.classList.add('bg-slate-900', 'text-white');
+            this.classList.remove('bg-slate-100', 'text-slate-600');
+            document.getElementById('btn-revenue-bar').classList.remove('bg-slate-900', 'text-white');
+            document.getElementById('btn-revenue-bar').classList.add('bg-slate-100', 'text-slate-600');
+        });
+        @endif
     </script>
 
 </body>
