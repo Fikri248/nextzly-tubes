@@ -3,14 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
-use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class CategoryController extends Controller
 {
     /**
-     * Display a listing of categories.
+     * Display a listing of the resource.
      */
     public function index()
     {
@@ -22,7 +20,7 @@ class CategoryController extends Controller
     }
 
     /**
-     * Show the form for creating a new category.
+     * Show the form for creating a new resource.
      */
     public function create()
     {
@@ -30,17 +28,19 @@ class CategoryController extends Controller
     }
 
     /**
-     * Store a newly created category.
+     * Store a newly created resource in storage.
+     * ✅ Task 3.2: Validasi tidak kosong + tidak duplikat
      */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama_kategori' => 'required|string|max:100|unique:categories,nama_kategori',
-            'deskripsi' => 'nullable|string|max:500',
+            'nama_kategori' => 'required|string|max:255|unique:categories,nama_kategori',
+            'deskripsi' => 'nullable|string|max:1000',
         ], [
             'nama_kategori.required' => 'Nama kategori wajib diisi.',
-            'nama_kategori.unique' => 'Nama kategori sudah digunakan.',
-            'nama_kategori.max' => 'Nama kategori maksimal 100 karakter.',
+            'nama_kategori.unique' => 'Nama kategori sudah digunakan, gunakan nama lain.',
+            'nama_kategori.max' => 'Nama kategori maksimal 255 karakter.',
+            'deskripsi.max' => 'Deskripsi maksimal 1000 karakter.',
         ]);
 
         Category::create($validated);
@@ -51,7 +51,7 @@ class CategoryController extends Controller
     }
 
     /**
-     * Show the form for editing the specified category.
+     * Show the form for editing the specified resource.
      */
     public function edit(Category $category)
     {
@@ -59,23 +59,22 @@ class CategoryController extends Controller
     }
 
     /**
-     * Update the specified category.
+     * Update the specified resource in storage.
+     * ✅ Task 3.2: Update tanpa merusak relasi + validasi unique (ignore current)
      */
     public function update(Request $request, Category $category)
     {
         $validated = $request->validate([
-            'nama_kategori' => [
-                'required',
-                'string',
-                'max:100',
-                Rule::unique('categories', 'nama_kategori')->ignore($category->id),
-            ],
-            'deskripsi' => 'nullable|string|max:500',
+            'nama_kategori' => 'required|string|max:255|unique:categories,nama_kategori,' . $category->id,
+            'deskripsi' => 'nullable|string|max:1000',
         ], [
             'nama_kategori.required' => 'Nama kategori wajib diisi.',
-            'nama_kategori.unique' => 'Nama kategori sudah digunakan.',
+            'nama_kategori.unique' => 'Nama kategori sudah digunakan, gunakan nama lain.',
+            'nama_kategori.max' => 'Nama kategori maksimal 255 karakter.',
+            'deskripsi.max' => 'Deskripsi maksimal 1000 karakter.',
         ]);
 
+        // Update kategori (relasi dengan produk tetap aman karena hanya update field, bukan ID)
         $category->update($validated);
 
         return redirect()
@@ -84,19 +83,19 @@ class CategoryController extends Controller
     }
 
     /**
-     * Remove the specified category.
+     * Remove the specified resource from storage.
+     * ✅ Task 3.2: Cegah hapus jika masih ada produk yang menggunakan kategori ini
      */
     public function destroy(Category $category)
     {
-        // Cek apakah kategori memiliki produk (pakai category_id)
-        $productCount = Product::where('category_id', $category->id)->count();
-
-        if ($productCount > 0) {
+        // Cek apakah kategori masih digunakan oleh produk
+        if ($category->products()->count() > 0) {
             return redirect()
                 ->route('admin.categories.index')
-                ->with('error', 'Kategori tidak dapat dihapus karena masih memiliki ' . $productCount . ' produk!');
+                ->with('error', 'Kategori tidak dapat dihapus karena masih digunakan oleh ' . $category->products()->count() . ' produk.');
         }
 
+        // Hapus kategori jika tidak ada produk yang menggunakan
         $category->delete();
 
         return redirect()
