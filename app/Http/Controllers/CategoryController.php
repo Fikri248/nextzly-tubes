@@ -29,7 +29,6 @@ class CategoryController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     * ✅ Task 3.2: Validasi tidak kosong + tidak duplikat
      */
     public function store(Request $request)
     {
@@ -60,7 +59,6 @@ class CategoryController extends Controller
 
     /**
      * Update the specified resource in storage.
-     * ✅ Task 3.2: Update tanpa merusak relasi + validasi unique (ignore current)
      */
     public function update(Request $request, Category $category)
     {
@@ -84,7 +82,6 @@ class CategoryController extends Controller
 
     /**
      * Remove the specified resource from storage.
-     * ✅ Task 3.2: Cegah hapus jika masih ada produk yang menggunakan kategori ini
      */
     public function destroy(Category $category)
     {
