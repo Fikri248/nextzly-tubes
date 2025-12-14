@@ -5,6 +5,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\CategoryController;
 
 Route::get('/', [HomeController::class, 'index'])->name('homepage');
 
@@ -18,12 +19,16 @@ Route::post('/admin/login', [AdminAuthController::class, 'login'])
     ->name('admin.login.attempt');
 
 // Route yang butuh login admin (protected)
-Route::middleware('admin.auth')->prefix('admin')->group(function () {
+Route::middleware('admin.auth')->prefix('admin')->name('admin.')->group(function () {
 
-    // Dashboard - sekarang pakai controller
+    // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])
-        ->name('admin.dashboard');
+        ->name('dashboard');
 
+    // Categories CRUD
+    Route::resource('categories', CategoryController::class)->except(['show']);
+
+    // Logout
     Route::post('/logout', [AdminAuthController::class, 'logout'])
-        ->name('admin.logout');
+        ->name('logout');
 });
