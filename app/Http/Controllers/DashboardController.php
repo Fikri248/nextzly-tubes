@@ -29,13 +29,43 @@ class DashboardController extends Controller
         // Total Pendapatan + Pajak
         $pendapatanDenganPajak = $totalPendapatan + $pajak;
 
+        // ===== DATA UNTUK CHART (Task 2.3) =====
+        // Ambil data penjualan per produk (hanya transaksi success)
+        $salesPerProduct = Transaction::select(
+                'product_id',
+                DB::raw('SUM(quantity) as total_sold'),
+                DB::raw('SUM(total_harga) as total_revenue')
+            )
+            ->where('status', 'success')
+            ->groupBy('product_id')
+            ->with('product:id,nama_produk')
+            ->orderByDesc('total_sold')
+            ->limit(10) // Top 10 produk terlaris
+            ->get();
+
+        // Format data untuk Chart.js
+        $chartLabels = $salesPerProduct->map(function ($item) {
+            return $item->product->nama_produk ?? 'Unknown';
+        })->toArray();
+
+        $chartData = $salesPerProduct->map(function ($item) {
+            return (int) $item->total_sold;
+        })->toArray();
+
+        $chartRevenue = $salesPerProduct->map(function ($item) {
+            return (float) $item->total_revenue;
+        })->toArray();
+
         return view('admin.dashboard', compact(
             'totalAkunTersedia',
             'totalAkunTerjual',
             'totalAplikasi',
             'totalPendapatan',
             'pajak',
-            'pendapatanDenganPajak'
+            'pendapatanDenganPajak',
+            'chartLabels',
+            'chartData',
+            'chartRevenue'
         ));
     }
 }
