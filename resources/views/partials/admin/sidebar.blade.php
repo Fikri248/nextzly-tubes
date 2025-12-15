@@ -75,8 +75,8 @@
             <span class="font-medium">Transaksi</span>
         </a>
 
-        {{-- Laporan --}}
-        <a href="#"
+        {{-- Laporan (UPDATED - href jadi route) --}}
+        <a href="{{ route('admin.reports.index') }}"
             class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group
             {{ Str::startsWith($currentRoute, 'admin.reports')
                 ? 'bg-slate-800/80 text-emerald-400'
