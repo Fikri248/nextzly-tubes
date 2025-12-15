@@ -7,6 +7,10 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\PendapatanExport;
+use App\Exports\TransaksiExport;
+use App\Exports\KategoriExport;
 
 class ReportController extends Controller
 {
@@ -119,7 +123,6 @@ class ReportController extends Controller
             'isRemoteEnabled' => true,
         ]);
 
-        // Filename: Nextzly_Laporan_Pendapatan_Desember_2025_20251215_081600.pdf
         return $pdf->download('Nextzly_Laporan_Pendapatan_' . str_replace(' ', '_', $namaBulan) . '_' . $timestamp . '.pdf');
     }
 
@@ -165,7 +168,6 @@ class ReportController extends Controller
             'isHtml5ParserEnabled' => true,
         ]);
 
-        // Filename: Nextzly_Laporan_Transaksi_20251201_to_20251215_20251215_081600.pdf
         return $pdf->download('Nextzly_Laporan_Transaksi_' . $startDate . '_to_' . $endDate . '_' . $timestamp . '.pdf');
     }
 
@@ -208,7 +210,51 @@ class ReportController extends Controller
             'isHtml5ParserEnabled' => true,
         ]);
 
-        // Filename: Nextzly_Laporan_Kategori_Desember_2025_20251215_081600.pdf
         return $pdf->download('Nextzly_Laporan_Kategori_' . str_replace(' ', '_', $namaBulan) . '_' . $timestamp . '.pdf');
+    }
+
+    /**
+     * Export Excel - Laporan Pendapatan
+     */
+    public function exportPendapatanExcel()
+    {
+        $bulanIni = Carbon::now();
+        $namaBulan = $bulanIni->locale('id')->translatedFormat('F Y');
+        $timestamp = Carbon::now()->format('Ymd_His');
+
+        return Excel::download(
+            new PendapatanExport(),
+            'Nextzly_Laporan_Pendapatan_' . str_replace(' ', '_', $namaBulan) . '_' . $timestamp . '.xlsx'
+        );
+    }
+
+    /**
+     * Export Excel - Laporan Transaksi
+     */
+    public function exportTransaksiExcel(Request $request)
+    {
+        $startDate = $request->query('start_date', Carbon::now()->startOfMonth()->toDateString());
+        $endDate = $request->query('end_date', Carbon::now()->toDateString());
+        $timestamp = Carbon::now()->format('Ymd_His');
+
+        return Excel::download(
+            new TransaksiExport($startDate, $endDate),
+            'Nextzly_Laporan_Transaksi_' . $startDate . '_to_' . $endDate . '_' . $timestamp . '.xlsx'
+        );
+    }
+
+    /**
+     * Export Excel - Laporan Kategori
+     */
+    public function exportKategoriExcel()
+    {
+        $bulanIni = Carbon::now();
+        $namaBulan = $bulanIni->locale('id')->translatedFormat('F Y');
+        $timestamp = Carbon::now()->format('Ymd_His');
+
+        return Excel::download(
+            new KategoriExport(),
+            'Nextzly_Laporan_Kategori_' . str_replace(' ', '_', $namaBulan) . '_' . $timestamp . '.xlsx'
+        );
     }
 }
