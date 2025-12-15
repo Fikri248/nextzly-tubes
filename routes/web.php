@@ -43,28 +43,34 @@ Route::middleware('admin.auth')->prefix('admin')->name('admin.')->group(function
     // Categories CRUD
     Route::resource('categories', CategoryController::class)->except(['show']);
 
-    // Reports & Export PDF
+    // Reports & Export
     Route::prefix('reports')->name('reports.')->group(function () {
         // Index - Tampilan Laporan
         Route::get('/', [ReportController::class, 'index'])
             ->name('index');
 
-        // Export PDF - Laporan Pendapatan
-        Route::get('/export-pendapatan', [ReportController::class, 'exportPendapatanPDF'])
-            ->name('export-pendapatan');
+        // Export PDF
+        Route::get('/export-pendapatan-pdf', [ReportController::class, 'exportPendapatanPDF'])
+            ->name('export-pendapatan-pdf');
 
-        // Export PDF - Laporan Transaksi (dengan filter tanggal)
-        Route::get('/export-transaksi', [ReportController::class, 'exportTransaksiPDF'])
-            ->name('export-transaksi');
+        Route::get('/export-transaksi-pdf', [ReportController::class, 'exportTransaksiPDF'])
+            ->name('export-transaksi-pdf');
 
-        // Export PDF - Laporan Per Kategori
-        Route::get('/export-kategori', [ReportController::class, 'exportKategoriPDF'])
-            ->name('export-kategori');
+        Route::get('/export-kategori-pdf', [ReportController::class, 'exportKategoriPDF'])
+            ->name('export-kategori-pdf');
+
+        // Export Excel
+        Route::get('/export-pendapatan-excel', [ReportController::class, 'exportPendapatanExcel'])
+            ->name('export-pendapatan-excel');
+
+        Route::get('/export-transaksi-excel', [ReportController::class, 'exportTransaksiExcel'])
+            ->name('export-transaksi-excel');
+
+        Route::get('/export-kategori-excel', [ReportController::class, 'exportKategoriExcel'])
+            ->name('export-kategori-excel');
     });
 
     // Logout
     Route::post('/logout', [AdminAuthController::class, 'logout'])
         ->name('logout');
 });
-
-
