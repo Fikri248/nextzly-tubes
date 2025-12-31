@@ -60,7 +60,7 @@
             <span class="font-medium">Data Produk</span>
         </a>
 
-        {{-- Data Pelanggan (UPDATED - dengan route yang benar) --}}
+        {{-- Data Pelanggan --}}
         <a href="{{ route('admin.customers.index') }}"
             class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group
             {{ Str::startsWith($currentRoute, 'admin.customers')
@@ -75,8 +75,8 @@
             <span class="font-medium">Data Pelanggan</span>
         </a>
 
-        {{-- Transaksi --}}
-        <a href="#"
+        {{-- Transaksi (UPDATED - route yang benar) --}}
+        <a href="{{ route('admin.transactions.index') }}"
             class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group
             {{ Str::startsWith($currentRoute, 'admin.transactions')
                 ? 'bg-slate-800/80 text-emerald-400'
