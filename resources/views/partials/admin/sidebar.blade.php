@@ -45,7 +45,7 @@
             <span class="font-medium">Kategori</span>
         </a>
 
-        {{-- Data Produk (UPDATED) --}}
+        {{-- Data Produk --}}
         <a href="{{ route('admin.products.index') }}"
             class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group
             {{ Str::startsWith($currentRoute, 'admin.products')
@@ -58,6 +58,21 @@
                 <i class="bi bi-box-seam text-sm"></i>
             </span>
             <span class="font-medium">Data Produk</span>
+        </a>
+
+        {{-- Data Pelanggan (UPDATED - dengan route yang benar) --}}
+        <a href="{{ route('admin.customers.index') }}"
+            class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group
+            {{ Str::startsWith($currentRoute, 'admin.customers')
+                ? 'bg-slate-800/80 text-emerald-400'
+                : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200' }}">
+            <span class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors
+                {{ Str::startsWith($currentRoute, 'admin.customers')
+                    ? 'bg-emerald-500/20 text-emerald-400'
+                    : 'bg-slate-800/50 group-hover:bg-slate-800' }}">
+                <i class="bi bi-people text-sm"></i>
+            </span>
+            <span class="font-medium">Data Pelanggan</span>
         </a>
 
         {{-- Transaksi --}}
@@ -88,21 +103,6 @@
                 <i class="bi bi-bar-chart-line text-sm"></i>
             </span>
             <span class="font-medium">Laporan</span>
-        </a>
-
-        {{-- Data Pelanggan --}}
-        <a href="#"
-            class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group
-            {{ Str::startsWith($currentRoute, 'admin.customers')
-                ? 'bg-slate-800/80 text-emerald-400'
-                : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200' }}">
-            <span class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors
-                {{ Str::startsWith($currentRoute, 'admin.customers')
-                    ? 'bg-emerald-500/20 text-emerald-400'
-                    : 'bg-slate-800/50 group-hover:bg-slate-800' }}">
-                <i class="bi bi-people text-sm"></i>
-            </span>
-            <span class="font-medium">Data Pelanggan</span>
         </a>
     </nav>
 
