@@ -1,657 +1,576 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="product-page-wrapper">
-    <div class="product-page-container">
+<div class="product-page">
+    <div class="product-container">
 
-        {{-- PRODUCT INFO --}}
-        <div class="product-header-box">
-            <img src="{{ asset('logo/' . $product->logo) }}" alt="{{ $product->nama_produk }}" class="product-logo">
-            <div class="product-info">
-                <h1>{{ $product->nama_produk }}</h1>
-                <p>{{ $product->deskripsi }}</p>
-            </div>
-        </div>
+        {{-- BACK BUTTON --}}
+        <a href="{{ route('homepage') }}" class="back-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+            </svg>
+            Kembali
+        </a>
 
-        {{-- PILIH NOMINAL LAYANAN --}}
-        <div class="selection-section">
-            <div class="section-main-header">
-                <span class="icon-payment">🎯</span>
-                <h2>Pilih Nominal Layanan</h2>
-            </div>
-
-            <div class="price-packages-container">
-                @foreach($product->paket_harga as $index => $package)
-                    <label class="package-item">
-                        <div class="package-info">
-                            <div class="package-details">
-                                <span class="package-duration">{{ $package['durasi'] }}</span>
-                                <span class="package-price">Rp {{ number_format($package['harga'], 0, ',', '.') }}</span>
-                            </div>
-                        </div>
-                        <input type="radio" name="selected_package" value="{{ $index }}"
-                               data-duration="{{ $package['durasi'] }}"
-                               data-price="{{ $package['harga'] }}"
-                               {{ $index == 0 ? 'checked' : '' }}>
-                    </label>
-                @endforeach
-            </div>
-        </div>
-
-        {{-- PILIH PEMBAYARAN --}}
-        <div class="payment-section-unified">
-            <div class="section-main-header">
-                <span class="icon-payment">💳</span>
-                <h2>Pilih Pembayaran</h2>
-            </div>
-
-            <div class="payment-methods-container">
-
-                {{-- SCAN QRIS --}}
-                <div class="payment-method-group">
-                    <div class="method-header" onclick="toggleMethod('qris')">
-                        <div class="method-title">
-                            <span class="icon-small">📱</span>
-                            <span>Scan QRIS</span>
-                        </div>
-                        <span class="chevron-small rotated" id="qris-chevron">
-                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        {{-- PRODUCT CARD --}}
+        <div class="product-card">
+            {{-- Header dengan gradient --}}
+            <div class="card-header">
+                <div class="header-content">
+                    @if($product->logo)
+                        <img src="{{ asset('logo/' . $product->logo) }}" alt="{{ $product->nama_produk }}" class="product-logo">
+                    @else
+                        <div class="product-logo placeholder-logo">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+                                <path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z"/>
                             </svg>
-                        </span>
-                    </div>
-                    <div class="method-content" id="qris-content">
-                        <label class="payment-item">
-                            <div class="payment-info">
-                                <div class="qris-logo-wrapper">
-                                    <svg viewBox="0 0 100 40" class="payment-logo">
-                                        <rect fill="#FF0000" width="100" height="40" rx="6"/>
-                                        <text x="50" y="26" font-size="18" fill="white" text-anchor="middle" font-weight="bold">QRIS</text>
-                                    </svg>
-                                </div>
-                                <span class="payment-name">QRIS (Semua Bank & E-Wallet)</span>
-                            </div>
-                            <input type="radio" name="payment_method" value="qris" data-label="QRIS" checked>
-                        </label>
+                        </div>
+                    @endif
+                    <div class="product-title-section">
+                        <h1>{{ $product->nama_produk }}</h1>
+                        <p class="product-desc">{{ $product->deskripsi ?? 'Produk digital premium berkualitas tinggi' }}</p>
                     </div>
                 </div>
+                <div class="product-badges">
+                    <span class="badge badge-category">{{ $product->category->nama_kategori ?? 'Digital' }}</span>
+                    @if($product->tipe_akun)
+                        <span class="badge badge-type">{{ ucfirst(str_replace('_', ' ', $product->tipe_akun)) }}</span>
+                    @endif
+                </div>
+            </div>
 
-                {{-- E-WALLET --}}
-                <div class="payment-method-group">
-                    <div class="method-header" onclick="toggleMethod('ewallet')">
-                        <div class="method-title">
-                            <span class="icon-small">💳</span>
-                            <span>E-Wallet</span>
-                        </div>
-                        <span class="chevron-small" id="ewallet-chevron">
-                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </span>
-                    </div>
-                    <div class="method-content collapsed" id="ewallet-content">
-                        <label class="payment-item">
-                            <div class="payment-info">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/e/eb/Logo_ovo_purple.svg"
-                                     alt="OVO" class="payment-logo"
-                                     onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 40%27%3E%3Crect fill=%27%234a148c%27 width=%27100%27 height=%2740%27 rx=%275%27/%3E%3Ctext x=%2750%27 y=%2726%27 font-size=%2718%27 fill=%27white%27 text-anchor=%27middle%27 font-weight=%27bold%27%3EOVO%3C/text%3E%3C/svg%3E'">
-                                <span class="payment-name">OVO</span>
-                            </div>
-                            <input type="radio" name="payment_method" value="ovo" data-label="OVO">
-                        </label>
-
-                        <label class="payment-item">
-                            <div class="payment-info">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/7/72/Logo_dana_blue.svg"
-                                     alt="DANA" class="payment-logo"
-                                     onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 40%27%3E%3Crect fill=%27%23118eea%27 width=%27100%27 height=%2740%27 rx=%275%27/%3E%3Ctext x=%2750%27 y=%2726%27 font-size=%2718%27 fill=%27white%27 text-anchor=%27middle%27 font-weight=%27bold%27%3EDANA%3C/text%3E%3C/svg%3E'">
-                                <span class="payment-name">DANA</span>
-                            </div>
-                            <input type="radio" name="payment_method" value="dana" data-label="DANA">
-                        </label>
-
-                        <label class="payment-item">
-                            <div class="payment-info">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/f/fe/Shopee.svg"
-                                     alt="ShopeePay" class="payment-logo"
-                                     onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 40%27%3E%3Crect fill=%27%23ee4d2d%27 width=%27100%27 height=%2740%27 rx=%275%27/%3E%3Ctext x=%2750%27 y=%2726%27 font-size=%2714%27 fill=%27white%27 text-anchor=%27middle%27 font-weight=%27bold%27%3ESHOPEEPAY%3C/text%3E%3C/svg%3E'">
-                                <span class="payment-name">SHOPEEPAY</span>
-                            </div>
-                            <input type="radio" name="payment_method" value="shopeepay" data-label="ShopeePay">
-                        </label>
-
-                        <label class="payment-item">
-                            <div class="payment-info">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/8/86/LinkAja.svg"
-                                     alt="LinkAja" class="payment-logo"
-                                     onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 40%27%3E%3Crect fill=%27%23e01e1e%27 width=%27100%27 height=%2740%27 rx=%275%27/%3E%3Ctext x=%2750%27 y=%2726%27 font-size=%2716%27 fill=%27white%27 text-anchor=%27middle%27 font-weight=%27bold%27%3ELINKAJA%3C/text%3E%3C/svg%3E'">
-                                <span class="payment-name">LINKAJA</span>
-                            </div>
-                            <input type="radio" name="payment_method" value="linkaja" data-label="LinkAja">
-                        </label>
-
-                        <label class="payment-item">
-                            <div class="payment-info">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/8/86/Gopay_logo.svg"
-                                     alt="GoPay" class="payment-logo"
-                                     onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 40%27%3E%3Crect fill=%27%2300aa13%27 width=%27100%27 height=%2740%27 rx=%275%27/%3E%3Ctext x=%2750%27 y=%2726%27 font-size=%2718%27 fill=%27white%27 text-anchor=%27middle%27 font-weight=%27bold%27%3EGOPAY%3C/text%3E%3C/svg%3E'">
-                                <span class="payment-name">GOPAY</span>
-                            </div>
-                            <input type="radio" name="payment_method" value="gopay" data-label="GoPay">
-                        </label>
+            {{-- Product Details --}}
+            <div class="card-body">
+                {{-- Platform --}}
+                @if($product->platform)
+                <div class="platform-section">
+                    <span class="section-label">Platform Tersedia</span>
+                    <div class="platform-tags">
+                        @foreach(explode(',', $product->platform) as $p)
+                            <span class="platform-tag">
+                                @if(trim($p) == 'Web')<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm7.5-6.923c-.67.204-1.335.82-1.887 1.855A7.97 7.97 0 0 0 5.145 4H7.5V1.077zM4.09 4a9.267 9.267 0 0 1 .64-1.539 6.7 6.7 0 0 1 .597-.933A7.025 7.025 0 0 0 2.255 4H4.09zm-.582 3.5c.03-.877.138-1.718.312-2.5H1.674a6.958 6.958 0 0 0-.656 2.5h2.49zM4.847 5a12.5 12.5 0 0 0-.338 2.5H7.5V5H4.847zM8.5 5v2.5h2.99a12.495 12.495 0 0 0-.337-2.5H8.5zM4.51 8.5a12.5 12.5 0 0 0 .337 2.5H7.5V8.5H4.51zm3.99 0V11h2.653c.187-.765.306-1.608.338-2.5H8.5zM5.145 12c.138.386.295.744.468 1.068.552 1.035 1.218 1.65 1.887 1.855V12H5.145zm.182 2.472a6.696 6.696 0 0 1-.597-.933A9.268 9.268 0 0 1 4.09 12H2.255a7.024 7.024 0 0 0 3.072 2.472zM3.82 11a13.652 13.652 0 0 1-.312-2.5h-2.49c.062.89.291 1.733.656 2.5H3.82zm6.853 3.472A7.024 7.024 0 0 0 13.745 12H11.91a9.27 9.27 0 0 1-.64 1.539 6.688 6.688 0 0 1-.597.933zM8.5 12v2.923c.67-.204 1.335-.82 1.887-1.855.173-.324.33-.682.468-1.068H8.5zm3.68-1h2.146c.365-.767.594-1.61.656-2.5h-2.49a13.65 13.65 0 0 1-.312 2.5zm2.802-3.5a6.959 6.959 0 0 0-.656-2.5H12.18c.174.782.282 1.623.312 2.5h2.49zM11.27 2.461c.247.464.462.98.64 1.539h1.835a7.024 7.024 0 0 0-3.072-2.472c.218.284.418.598.597.933zM10.855 4a7.966 7.966 0 0 0-.468-1.068C9.835 1.897 9.17 1.282 8.5 1.077V4h2.355z"/></svg>
+                                @elseif(trim($p) == 'Android')<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M2.76 3.061a.5.5 0 0 1 .679.2l1.283 2.352A8.94 8.94 0 0 1 8 5a8.94 8.94 0 0 1 3.278.613l1.283-2.352a.5.5 0 1 1 .878.478l-1.252 2.295C14.475 7.266 16 9.477 16 12H0c0-2.523 1.525-4.734 3.813-5.966L2.56 3.74a.5.5 0 0 1 .2-.678zM5 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm6 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/></svg>
+                                @elseif(trim($p) == 'iOS')<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M11.182.008C11.148-.03 9.923.023 8.857 1.18c-1.066 1.156-.902 2.482-.878 2.516.024.034 1.52.087 2.475-1.258.955-1.345.762-2.391.728-2.43zm3.314 11.733c-.048-.096-2.325-1.234-2.113-3.422.212-2.189 1.675-2.789 1.698-2.854.023-.065-.597-.79-1.254-1.157a3.692 3.692 0 0 0-1.563-.434c-.108-.003-.483-.095-1.254.116-.508.139-1.653.589-1.968.607-.316.018-1.256-.522-2.267-.665-.647-.125-1.333.131-1.824.328-.49.196-1.422.754-2.074 2.237-.652 1.482-.311 3.83-.067 4.56.244.729.625 1.924 1.273 2.796.576.984 1.34 1.667 1.659 1.899.319.232 1.219.386 1.843.067.502-.308 1.408-.485 1.766-.472.357.013 1.061.154 1.782.539.571.197 1.111.115 1.652-.105.541-.221 1.324-1.059 2.238-2.758.347-.79.505-1.217.473-1.282z"/></svg>
+                                @elseif(trim($p) == 'Windows')<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M6.555 1.375 0 2.237v5.45h6.555V1.375zM0 8.313v5.45l6.555.862V8.312H0zm7.278-7.05v6.424H16V.313L7.278 1.262zM16 8.313H7.278v6.425L16 15.687V8.312z"/></svg>
+                                @elseif(trim($p) == 'MacOS')<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M11.182.008C11.148-.03 9.923.023 8.857 1.18c-1.066 1.156-.902 2.482-.878 2.516.024.034 1.52.087 2.475-1.258.955-1.345.762-2.391.728-2.43zm3.314 11.733c-.048-.096-2.325-1.234-2.113-3.422.212-2.189 1.675-2.789 1.698-2.854.023-.065-.597-.79-1.254-1.157a3.692 3.692 0 0 0-1.563-.434c-.108-.003-.483-.095-1.254.116-.508.139-1.653.589-1.968.607-.316.018-1.256-.522-2.267-.665-.647-.125-1.333.131-1.824.328-.49.196-1.422.754-2.074 2.237-.652 1.482-.311 3.83-.067 4.56.244.729.625 1.924 1.273 2.796.576.984 1.34 1.667 1.659 1.899.319.232 1.219.386 1.843.067.502-.308 1.408-.485 1.766-.472.357.013 1.061.154 1.782.539.571.197 1.111.115 1.652-.105.541-.221 1.324-1.059 2.238-2.758.347-.79.505-1.217.473-1.282z"/></svg>
+                                @elseif(trim($p) == 'Smart TV')<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M2.5 13.5A.5.5 0 0 1 3 13h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zM13.991 3l.024.001a1.46 1.46 0 0 1 .538.143.757.757 0 0 1 .302.254c.067.1.145.277.145.602v5.991l-.001.024a1.464 1.464 0 0 1-.143.538.758.758 0 0 1-.254.302c-.1.067-.277.145-.602.145H2.009l-.024-.001a1.464 1.464 0 0 1-.538-.143.757.757 0 0 1-.302-.254C1.078 10.502 1 10.325 1 10V4.009l.001-.024a1.46 1.46 0 0 1 .143-.538.758.758 0 0 1 .254-.302C1.498 3.078 1.675 3 2 3h11.991zM14 2H2C0 2 0 4 0 4v6c0 2 2 2 2 2h12c2 0 2-2 2-2V4c0-2-2-2-2-2z"/></svg>
+                                @else<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M11 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h6zM5 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H5z"/><path d="M8 14a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/></svg>
+                                @endif
+                                {{ trim($p) }}
+                            </span>
+                        @endforeach
                     </div>
                 </div>
+                @endif
 
-                {{-- VIRTUAL ACCOUNT --}}
-                <div class="payment-method-group">
-                    <div class="method-header" onclick="toggleMethod('va')">
-                        <div class="method-title">
-                            <span class="icon-small">🏦</span>
-                            <span>Virtual Account</span>
-                        </div>
-                        <span class="chevron-small" id="va-chevron">
-                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </span>
+                {{-- Price Card --}}
+                <div class="price-card">
+                    <div class="price-info">
+                        <span class="duration-label">Durasi Akses</span>
+                        <span class="duration-value">{{ $product->durasi }} Hari</span>
                     </div>
-                    <div class="method-content collapsed" id="va-content">
-                        <label class="payment-item">
-                            <div class="payment-info">
-                                <img src="https://upload.wikimedia.org/wikipedia/id/5/55/BNI_logo.svg"
-                                     alt="BNI" class="payment-logo"
-                                     onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 40%27%3E%3Crect fill=%27%23fd7e14%27 width=%27100%27 height=%2740%27 rx=%275%27/%3E%3Ctext x=%2750%27 y=%2726%27 font-size=%2718%27 fill=%27white%27 text-anchor=%27middle%27 font-weight=%27bold%27%3EBNI%3C/text%3E%3C/svg%3E'">
-                                <span class="payment-name">BNI VIRTUAL ACCOUNT</span>
-                            </div>
-                            <input type="radio" name="payment_method" value="bni_va" data-label="BNI Virtual Account">
-                        </label>
-
-                        <label class="payment-item">
-                            <div class="payment-info">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/a/ad/Bank_Mandiri_logo_2016.svg"
-                                     alt="Mandiri" class="payment-logo"
-                                     onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 40%27%3E%3Crect fill=%27%23003d79%27 width=%27100%27 height=%2740%27 rx=%275%27/%3E%3Ctext x=%2750%27 y=%2726%27 font-size=%2714%27 fill=%27white%27 text-anchor=%27middle%27 font-weight=%27bold%27%3EMANDIRI%3C/text%3E%3C/svg%3E'">
-                                <span class="payment-name">MANDIRI VIRTUAL ACCOUNT</span>
-                            </div>
-                            <input type="radio" name="payment_method" value="mandiri_va" data-label="Mandiri Virtual Account">
-                        </label>
-
-                        <label class="payment-item">
-                            <div class="payment-info">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/2/2e/BRI_2020.svg"
-                                     alt="BRI" class="payment-logo"
-                                     onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 40%27%3E%3Crect fill=%27%230066a1%27 width=%27100%27 height=%2740%27 rx=%275%27/%3E%3Ctext x=%2750%27 y=%2726%27 font-size=%2718%27 fill=%27white%27 text-anchor=%27middle%27 font-weight=%27bold%27%3EBRI%3C/text%3E%3C/svg%3E'">
-                                <span class="payment-name">BRI VIRTUAL ACCOUNT</span>
-                            </div>
-                            <input type="radio" name="payment_method" value="bri_va" data-label="BRI Virtual Account">
-                        </label>
+                    <div class="price-amount">
+                        <span class="currency">Rp</span>
+                        <span class="amount">{{ number_format($product->harga, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="stock-info">
+                        @if($product->stok > 0)
+                            <span class="stock-badge available">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg>
+                                Stok Tersedia: {{ $product->stok }}
+                            </span>
+                        @else
+                            <span class="stock-badge empty">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/></svg>
+                                Stok Habis
+                            </span>
+                        @endif
                     </div>
                 </div>
-
             </div>
         </div>
 
-        {{-- ORDER SUMMARY & BUTTON --}}
-        <div class="checkout-footer">
-            <div class="total-display">
-                <span class="total-label">Total Pembayaran</span>
-                <span class="total-price" id="totalPrice">Rp {{ number_format($product->paket_harga[0]['harga'], 0, ',', '.') }}</span>
+        {{-- PAYMENT SECTION - QRIS ONLY --}}
+        @if($product->stok > 0)
+        <div class="payment-card">
+            <div class="payment-header">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm2.5 1a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-2zm0 3a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5zm0 2a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1h-1zm3 0a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1h-1zm3 0a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1h-1zm3 0a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1h-1z"/>
+                </svg>
+                <h2>Pembayaran QRIS</h2>
             </div>
-            <button class="btn-checkout" onclick="processPayment()">
-                Bayar Sekarang
-            </button>
+
+            <div class="qris-section">
+                <div class="qris-image-wrapper">
+                    <img src="{{ asset('qris.jpeg') }}" alt="QRIS Payment" class="qris-image">
+                </div>
+                <div class="qris-info">
+                    <p class="qris-instruction">Scan QR Code di atas menggunakan aplikasi e-wallet atau mobile banking Anda</p>
+                    <div class="qris-supported">
+                        <span>Didukung oleh:</span>
+                        <div class="wallet-icons">
+                            <span class="wallet-badge">GoPay</span>
+                            <span class="wallet-badge">OVO</span>
+                            <span class="wallet-badge">DANA</span>
+                            <span class="wallet-badge">ShopeePay</span>
+                            <span class="wallet-badge">LinkAja</span>
+                            <span class="wallet-badge">Bank Apps</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Total & CTA --}}
+            <div class="checkout-section">
+                <div class="total-row">
+                    <span class="total-label">Total Pembayaran</span>
+                    <span class="total-value">Rp {{ number_format($product->harga, 0, ',', '.') }}</span>
+                </div>
+                <button class="btn-confirm" onclick="confirmPayment()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/>
+                    </svg>
+                    Konfirmasi via WhatsApp
+                </button>
+                <p class="confirm-note">Setelah transfer, klik tombol di atas untuk konfirmasi pembayaran</p>
+            </div>
         </div>
+        @else
+        <div class="out-of-stock-card">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+            </svg>
+            <h3>Produk Sedang Tidak Tersedia</h3>
+            <p>Stok untuk produk ini sedang habis. Silakan cek kembali nanti atau hubungi admin.</p>
+            <a href="{{ route('homepage') }}" class="btn-back">Kembali ke Home</a>
+        </div>
+        @endif
 
     </div>
 </div>
 
 <script>
-// Data produk dari backend
 const productName = "{{ $product->nama_produk }}";
-const adminWhatsapp = "6281239660249"; // GANTI dengan nomor admin
+const productPrice = {{ $product->harga }};
+const productDuration = "{{ $product->durasi }} Hari";
+const adminWhatsapp = "6281239660249";
 
-// Update total saat pilih paket
-document.querySelectorAll('input[name="selected_package"]').forEach(radio => {
-    radio.addEventListener('change', function() {
-        const price = this.dataset.price;
-        document.getElementById('totalPrice').textContent =
-            'Rp ' + parseInt(price).toLocaleString('id-ID');
-    });
-});
+function confirmPayment() {
+    const message = `Halo Admin Nextzly!
 
-function toggleMethod(method) {
-    const content = document.getElementById(method + '-content');
-    const chevron = document.getElementById(method + '-chevron');
+Saya sudah melakukan pembayaran via QRIS untuk:
 
-    content.classList.toggle('collapsed');
-    chevron.classList.toggle('rotated');
-}
+*Produk:* ${productName}
+*Durasi:* ${productDuration}
+*Total:* Rp ${productPrice.toLocaleString('id-ID')}
 
-function processPayment() {
-    const selectedPackage = document.querySelector('input[name="selected_package"]:checked');
-    const selectedPayment = document.querySelector('input[name="payment_method"]:checked');
+Mohon diproses pesanan saya. Terima kasih!`.trim();
 
-    if (!selectedPackage || !selectedPayment) {
-        alert('Silakan pilih paket dan metode pembayaran!');
-        return;
-    }
-
-    const duration = selectedPackage.dataset.duration;
-    const price = selectedPackage.dataset.price;
-    const paymentLabel = selectedPayment.dataset.label;
-
-    // Format pesan WhatsApp TANPA EMOJI
-    const message = `
-*PESANAN BARU*
-
-Produk: ${productName}
-Paket: ${duration}
-Total: Rp ${parseInt(price).toLocaleString('id-ID')}
-Pembayaran: ${paymentLabel}
-
-Mohon konfirmasi untuk melanjutkan pembayaran. Terima kasih!
-    `.trim();
-
-    // Encode URL
     const encodedMessage = encodeURIComponent(message);
-
-    // Redirect ke WhatsApp
-    const whatsappUrl = `https://wa.me/${adminWhatsapp}?text=${encodedMessage}`;
-    window.open(whatsappUrl, '_blank');
+    window.open(`https://wa.me/${adminWhatsapp}?text=${encodedMessage}`, '_blank');
 }
 </script>
 
 <style>
-/* ===== PRODUCT PAGE THEME ===== */
-.product-page-wrapper {
+/* ===== MODERN PRODUCT PAGE ===== */
+.product-page {
     min-height: 100vh;
-    background: #cbd5e1;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
     padding: 40px 20px;
 }
 
-.product-page-container {
-    max-width: 700px;
+.product-container {
+    max-width: 600px;
     margin: 0 auto;
 }
 
-/* Product Header */
-.product-header-box {
-    background: #f1f5f9;
-    border: 1px solid #cbd5e1;
-    border-radius: 16px;
-    padding: 24px;
+/* Back Link */
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
     margin-bottom: 24px;
+    transition: color 0.3s;
+}
+
+.back-link:hover {
+    color: #ffffff;
+}
+
+/* Product Card */
+.product-card {
+    background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+    border-radius: 24px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+    margin-bottom: 24px;
+}
+
+.card-header {
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+    padding: 32px 28px;
+}
+
+.header-content {
     display: flex;
     align-items: center;
     gap: 20px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
 }
 
 .product-logo {
     width: 80px;
     height: 80px;
+    border-radius: 20px;
     object-fit: contain;
-    background: white;
-    border-radius: 12px;
+    background: rgba(255,255,255,0.95);
     padding: 12px;
-    border: 1px solid #e2e8f0;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
 
-.product-info h1 {
-    color: #1e293b;
-    font-size: 1.4rem;
-    font-weight: 700;
-    margin: 0 0 8px 0;
-}
-
-.product-info p {
-    color: #64748b;
-    font-size: 0.9rem;
-    margin: 0;
-}
-
-/* Selection Section */
-.selection-section {
-    background: #2c3e50;
-    border: 1px solid #cbd5e1;
-    border-radius: 16px;
-    overflow: hidden;
-    margin-bottom: 24px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-}
-
-.section-main-header {
-    padding: 20px 24px;
+.placeholder-logo {
     display: flex;
-    align-items: center;
-    gap: 12px;
-    background: #2c3e50;
-}
-
-.icon-payment {
-    font-size: 1.5rem;
-}
-
-.section-main-header h2 {
-    color: #f8fafc;
-    font-size: 1.2rem;
-    font-weight: 600;
-    margin: 0;
-}
-
-/* Price Packages Container */
-.price-packages-container {
-    background: #e2e8f0;
-    padding: 20px 24px;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 12px;
-}
-
-.package-item {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 16px;
-    background: white;
-    border: 2px solid #cbd5e1;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.3s;
-    position: relative;
-}
-
-.package-item:hover {
-    background: #f8fafc;
-    border-color: #94a3b8;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    transform: translateY(-2px);
-}
-
-.package-item:has(input:checked) {
-    background: white;
-    border-color: #38bdf8;
-    box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.15);
-}
-
-.package-details {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin-bottom: 12px;
-}
-
-.package-duration {
-    color: #1e293b;
-    font-weight: 600;
-    font-size: 0.95rem;
-}
-
-.package-price {
-    color: #38bdf8;
-    font-weight: 700;
-    font-size: 1.1rem;
-}
-
-.package-item input[type="radio"] {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
-    accent-color: #38bdf8;
-}
-
-/* Payment Section Unified */
-.payment-section-unified {
-    background: #2c3e50;
-    border: 1px solid #cbd5e1;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-}
-
-.payment-methods-container {
-    background: #e2e8f0;
-    padding: 0;
-}
-
-.payment-method-group {
-    border-bottom: 1px solid #cbd5e1;
-}
-
-.payment-method-group:last-child {
-    border-bottom: none;
-}
-
-.method-header {
-    padding: 16px 24px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
-    background: #5f6c7a;
-    transition: background 0.2s;
-    min-height: 56px;
-}
-
-.method-header:hover {
-    background: #6b7888;
-}
-
-.method-title {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: #f8fafc;
-    font-weight: 500;
-    font-size: 0.95rem;
-}
-
-.icon-small {
-    font-size: 1.2rem;
-}
-
-.chevron-small {
-    color: #cbd5e1;
-    transition: transform 0.3s;
-    display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 20px;
-    height: 20px;
+    color: #94a3b8;
 }
 
-.chevron-small svg {
-    stroke: currentColor;
+.product-title-section h1 {
+    color: #ffffff;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.2);
 }
 
-.chevron-small.rotated {
-    transform: rotate(180deg);
+.product-desc {
+    color: rgba(255,255,255,0.85);
+    font-size: 0.9rem;
+    margin: 0;
+    line-height: 1.5;
 }
 
-.method-content {
-    max-height: 1000px;
-    overflow: hidden;
-    transition: max-height 0.4s ease-in-out, padding 0.4s;
-    padding: 16px 24px 16px 24px;
-    background: #e2e8f0;
-}
-
-.method-content.collapsed {
-    max-height: 0;
-    padding: 0 24px;
-}
-
-.payment-item {
+.product-badges {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px 20px;
-    background: white;
-    border: 2px solid #cbd5e1;
-    border-radius: 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.badge {
+    padding: 6px 14px;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-category {
+    background: rgba(255,255,255,0.2);
+    color: white;
+    backdrop-filter: blur(10px);
+}
+
+.badge-type {
+    background: rgba(0,0,0,0.3);
+    color: white;
+}
+
+/* Card Body */
+.card-body {
+    padding: 28px;
+}
+
+.platform-section {
+    margin-bottom: 24px;
+}
+
+.section-label {
+    display: block;
+    color: #64748b;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
     margin-bottom: 12px;
-    cursor: pointer;
-    transition: all 0.3s;
 }
 
-.payment-item:last-child {
-    margin-bottom: 0;
-}
-
-.payment-item:hover {
-    background: #f8fafc;
-    border-color: #94a3b8;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    transform: translateY(-2px);
-}
-
-.payment-item:has(input:checked) {
-    background: white;
-    border-color: #38bdf8;
-    box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.15);
-}
-
-.payment-info {
+.platform-tags {
     display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.platform-tag {
+    display: inline-flex;
     align-items: center;
-    gap: 16px;
-}
-
-.qris-logo-wrapper {
-    width: 60px;
-    height: 30px;
-}
-
-.payment-logo {
-    width: 60px;
-    height: 30px;
-    object-fit: contain;
-}
-
-.payment-name {
-    color: #1e293b;
+    gap: 6px;
+    padding: 8px 14px;
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 8px;
+    color: #60a5fa;
+    font-size: 0.8rem;
     font-weight: 500;
-    font-size: 0.95rem;
 }
 
-.payment-item input[type="radio"] {
-    width: 22px;
-    height: 22px;
-    cursor: pointer;
-    accent-color: #38bdf8;
-}
-
-/* Checkout Footer */
-.checkout-footer {
-    margin-top: 32px;
-    background: #f1f5f9;
-    border: 1px solid #cbd5e1;
+/* Price Card */
+.price-card {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+    border: 1px solid rgba(59, 130, 246, 0.2);
     border-radius: 16px;
     padding: 24px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    text-align: center;
 }
 
-.total-display {
+.price-info {
+    margin-bottom: 12px;
+}
+
+.duration-label {
+    display: block;
+    color: #64748b;
+    font-size: 0.8rem;
+    margin-bottom: 4px;
+}
+
+.duration-value {
+    color: #e2e8f0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.price-amount {
+    margin-bottom: 16px;
+}
+
+.currency {
+    color: #3b82f6;
+    font-size: 1.2rem;
+    font-weight: 600;
+    vertical-align: top;
+}
+
+.amount {
+    color: #ffffff;
+    font-size: 2.5rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+}
+
+.stock-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.stock-badge.available {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.stock-badge.empty {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Payment Card */
+.payment-card {
+    background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+    border-radius: 24px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+}
+
+.payment-header {
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    padding: 20px 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: white;
+}
+
+.payment-header h2 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.qris-section {
+    padding: 28px;
+    text-align: center;
+}
+
+.qris-image-wrapper {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    display: inline-block;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+}
+
+.qris-image {
+    max-width: 220px;
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+.qris-instruction {
+    color: #94a3b8;
+    font-size: 0.9rem;
+    margin: 0 0 20px 0;
+    line-height: 1.6;
+}
+
+.qris-supported span {
+    color: #64748b;
+    font-size: 0.8rem;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.wallet-icons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+}
+
+.wallet-badge {
+    padding: 6px 12px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    color: #94a3b8;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/* Checkout Section */
+.checkout-section {
+    background: rgba(0,0,0,0.3);
+    padding: 24px 28px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.total-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #e2e8f0;
 }
 
 .total-label {
-    color: #475569;
-    font-size: 1rem;
-    font-weight: 500;
+    color: #94a3b8;
+    font-size: 0.9rem;
 }
 
-.total-price {
-    color: #38bdf8;
-    font-size: 1.8rem;
-    font-weight: 700;
+.total-value {
+    color: #10b981;
+    font-size: 1.5rem;
+    font-weight: 800;
 }
 
-.btn-checkout {
+.btn-confirm {
     width: 100%;
-    padding: 18px;
-    background: linear-gradient(135deg, #38bdf8 0%, #3b82f6 100%);
+    padding: 16px 24px;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
     color: white;
     border: none;
     border-radius: 12px;
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
     transition: all 0.3s;
-    box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+    box-shadow: 0 10px 30px rgba(34, 197, 94, 0.3);
 }
 
-.btn-checkout:hover {
+.btn-confirm:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(56, 189, 248, 0.4);
+    box-shadow: 0 15px 40px rgba(34, 197, 94, 0.4);
 }
 
-.btn-checkout:active {
-    transform: translateY(0);
+.confirm-note {
+    color: #64748b;
+    font-size: 0.8rem;
+    text-align: center;
+    margin: 16px 0 0 0;
+}
+
+/* Out of Stock */
+.out-of-stock-card {
+    background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+    border-radius: 24px;
+    padding: 48px 28px;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.out-of-stock-card svg {
+    color: #ef4444;
+    margin-bottom: 20px;
+}
+
+.out-of-stock-card h3 {
+    color: #f1f5f9;
+    font-size: 1.25rem;
+    margin: 0 0 12px 0;
+}
+
+.out-of-stock-card p {
+    color: #94a3b8;
+    font-size: 0.9rem;
+    margin: 0 0 24px 0;
+}
+
+.btn-back {
+    display: inline-block;
+    padding: 12px 24px;
+    background: rgba(59, 130, 246, 0.2);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-back:hover {
+    background: rgba(59, 130, 246, 0.3);
 }
 
 /* Responsive */
-@media (max-width: 768px) {
-    .product-page-wrapper {
-        padding: 20px 16px;
-    }
-
-    .product-header-box {
-        flex-direction: column;
-        text-align: center;
-        padding: 20px;
-    }
-
-    .price-packages-container {
-        grid-template-columns: repeat(2, 1fr);
-        padding: 16px;
-        gap: 10px;
-    }
-
-    .package-item {
-        padding: 12px;
-    }
-
-    .package-duration {
-        font-size: 0.85rem;
-    }
-
-    .package-price {
-        font-size: 1rem;
-    }
-
-    .method-header {
-        padding: 14px 20px;
-    }
-
-    .method-content {
-        padding: 12px 20px 12px 20px;
-    }
-
-    .payment-item {
-        padding: 14px 16px;
-    }
-
-    .payment-logo {
-        width: 50px;
-        height: 25px;
-    }
-
-    .payment-name {
-        font-size: 0.9rem;
-    }
-
-    .total-price {
-        font-size: 1.5rem;
-    }
+@media (max-width: 640px) {
+    .product-page { padding: 20px 16px; }
+    .card-header { padding: 24px 20px; }
+    .header-content { flex-direction: column; text-align: center; }
+    .product-badges { justify-content: center; }
+    .card-body { padding: 20px; }
+    .qris-section { padding: 20px; }
+    .checkout-section { padding: 20px; }
+    .amount { font-size: 2rem; }
+    .total-value { font-size: 1.3rem; }
 }
 </style>
 @endsection

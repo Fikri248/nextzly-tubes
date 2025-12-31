@@ -43,6 +43,9 @@ Route::middleware('admin.auth')->prefix('admin')->name('admin.')->group(function
     // Categories CRUD
     Route::resource('categories', CategoryController::class)->except(['show']);
 
+    // Products CRUD
+    Route::resource('products', ProductController::class)->except(['show']);
+
     // Reports & Export
     Route::prefix('reports')->name('reports.')->group(function () {
         // Index - Tampilan Laporan
