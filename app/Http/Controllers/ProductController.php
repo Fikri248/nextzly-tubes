@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Customer;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
@@ -11,7 +13,7 @@ use Illuminate\Support\Facades\File;
 class ProductController extends Controller
 {
     /**
-     * Display a listing of products.
+     * Display a listing of products (Admin).
      */
     public function index()
     {
@@ -64,12 +66,83 @@ class ProductController extends Controller
     }
 
     /**
-     * Display the specified product (frontend).
+     * Display the specified product (Frontend).
      */
     public function show($id)
     {
         $product = Product::with('category')->findOrFail($id);
         return view('show', compact('product'));
+    }
+
+    /**
+     * Store order from product page (Frontend).
+     */
+    public function storeOrder(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'phone' => 'required|string|max:20',
+            'catatan' => 'nullable|string|max:500',
+        ], [
+            'name.required' => 'Nama wajib diisi.',
+            'phone.required' => 'Nomor telepon wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+        ]);
+
+        $product = Product::findOrFail($id);
+
+        // Check stock
+        if ($product->stok < 1) {
+            return back()->with('error', 'Maaf, stok produk habis.');
+        }
+
+        // Find or create customer
+        $customer = Customer::firstOrCreate(
+            ['phone' => $request->phone],
+            [
+                'name' => $request->name,
+                'email' => $request->email,
+            ]
+        );
+
+        // Update customer name/email if different
+        if ($customer->name !== $request->name || $customer->email !== $request->email) {
+            $customer->update([
+                'name' => $request->name,
+                'email' => $request->email,
+            ]);
+        }
+
+        // Generate unique order ID
+        $orderId = 'ORD-' . strtoupper(Str::random(10));
+
+        // Create transaction with status pending
+        $transaction = Transaction::create([
+            'order_id' => $orderId,
+            'customer_id' => $customer->id,
+            'product_id' => $product->id,
+            'quantity' => 1,
+            'total_harga' => $product->harga,
+            'metode_pembayaran' => 'qris_whatsapp',
+            'status' => 'pending',
+            'catatan' => $request->catatan,
+        ]);
+
+        // Return with order data for WhatsApp confirmation
+        return back()->with([
+            'order_success' => true,
+            'order' => [
+                'order_id' => $orderId,
+                'customer_name' => $customer->name,
+                'customer_phone' => $customer->phone,
+                'customer_email' => $customer->email,
+                'product_name' => $product->nama_produk,
+                'product_price' => $product->harga,
+                'product_duration' => $product->durasi,
+                'catatan' => $request->catatan,
+            ]
+        ]);
     }
 
     /**

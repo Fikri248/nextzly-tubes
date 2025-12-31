@@ -6,6 +6,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ReportController;
 
 // ========================================
@@ -17,6 +18,9 @@ Route::get('/', [HomeController::class, 'index'])->name('homepage');
 
 // Product Detail
 Route::get('/product/{id}', [ProductController::class, 'show'])->name('product.show');
+
+// Product Order (Customer Form Submit)
+Route::post('/product/{id}/order', [ProductController::class, 'storeOrder'])->name('product.order');
 
 // ========================================
 // ADMIN AUTHENTICATION (PUBLIC)
@@ -45,6 +49,11 @@ Route::middleware('admin.auth')->prefix('admin')->name('admin.')->group(function
 
     // Products CRUD
     Route::resource('products', ProductController::class)->except(['show']);
+
+    // Customers Management
+    Route::resource('customers', CustomerController::class)->except(['show']);
+    Route::get('/customers/{customer}/transactions', [CustomerController::class, 'transactions'])
+        ->name('customers.transactions');
 
     // Reports & Export
     Route::prefix('reports')->name('reports.')->group(function () {
