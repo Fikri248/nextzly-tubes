@@ -45,8 +45,8 @@
             <span class="font-medium">Kategori</span>
         </a>
 
-        {{-- Data Produk --}}
-        <a href="#"
+        {{-- Data Produk (UPDATED) --}}
+        <a href="{{ route('admin.products.index') }}"
             class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group
             {{ Str::startsWith($currentRoute, 'admin.products')
                 ? 'bg-slate-800/80 text-emerald-400'
@@ -75,7 +75,7 @@
             <span class="font-medium">Transaksi</span>
         </a>
 
-        {{-- Laporan (UPDATED - href jadi route) --}}
+        {{-- Laporan --}}
         <a href="{{ route('admin.reports.index') }}"
             class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group
             {{ Str::startsWith($currentRoute, 'admin.reports')

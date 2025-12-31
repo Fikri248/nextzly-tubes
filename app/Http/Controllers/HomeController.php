@@ -13,17 +13,20 @@ class HomeController extends Controller
         $search = $request->input('search');
         $kategori = $request->input('kategori');
 
-        $query = Product::with('category');
+        $query = Product::with('category')
+            ->where('status', 'tersedia'); // ← HANYA TAMPILKAN YANG TERSEDIA
 
         // Search
         if ($search) {
-            $query->where('nama_produk', 'like', '%' . $search . '%')
+            $query->where(function($q) use ($search) {
+                $q->where('nama_produk', 'like', '%' . $search . '%')
                   ->orWhere('deskripsi', 'like', '%' . $search . '%');
+            });
         }
 
-        // Filter kategori (pakai category_id, bukan kategori)
+        // Filter kategori
         if ($kategori && $kategori !== 'all') {
-            $query->where('category_id', $kategori);  // ← PERBAIKAN
+            $query->where('category_id', $kategori);
         }
 
         $products = $query->orderBy('created_at', 'desc')->get();

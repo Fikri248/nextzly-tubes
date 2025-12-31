@@ -6,9 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Admin') - Nextzly</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
-    {{-- Chart.js (optional, load hanya jika dibutuhkan) --}}
     @stack('styles')
 
     <style>
@@ -99,6 +99,22 @@
             50% { transform: scale(1.2); }
             100% { transform: scale(1); }
         }
+
+        /* Custom Scrollbar for Dropdown */
+        .dropdown-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .dropdown-scroll::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 3px;
+        }
+        .dropdown-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        .dropdown-scroll::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
     </style>
 </head>
 
@@ -152,9 +168,6 @@
 
     {{-- SCRIPTS --}}
     <script>
-        // =====================
-        // SIDEBAR TOGGLE
-        // =====================
         const sidebar = document.getElementById('admin-sidebar');
         const sidebarToggle = document.getElementById('sidebar-toggle');
         const sidebarOverlay = document.getElementById('sidebar-overlay');
@@ -186,9 +199,6 @@
         sidebarToggle.addEventListener('click', toggleSidebar);
         sidebarOverlay.addEventListener('click', toggleSidebar);
 
-        // =====================
-        // PROFILE DROPDOWN
-        // =====================
         const profileToggle = document.getElementById('profile-toggle');
         const profileMenu = document.getElementById('profile-menu');
         const profileChevron = document.getElementById('profile-chevron');
@@ -216,9 +226,6 @@
             });
         }
 
-        // =====================
-        // DYNAMIC ISLAND
-        // =====================
         const island = document.getElementById('dynamic-island');
 
         function showIsland() {
@@ -239,9 +246,6 @@
             }
         }
 
-        // =====================
-        // ALERT AUTO DISMISS
-        // =====================
         function closeAlert(alertId) {
             const alert = document.getElementById(alertId);
             if (alert) {
@@ -252,7 +256,6 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Auto dismiss alerts after 4 seconds
             const alerts = document.querySelectorAll('[id^="alert-"]');
             alerts.forEach(alert => {
                 setTimeout(() => {
@@ -268,16 +271,12 @@
                 }, 4000);
             });
 
-            // Show dynamic island on dashboard
             @if(Request::routeIs('admin.dashboard'))
             setTimeout(showIsland, 500);
             setTimeout(hideIsland, 4500);
             @endif
         });
 
-        // =====================
-        // KEYBOARD SHORTCUTS
-        // =====================
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 if (profileOpen) toggleProfileMenu();
@@ -290,7 +289,6 @@
         });
     </script>
 
-    {{-- Additional Scripts --}}
     @stack('scripts')
 </body>
 </html>
