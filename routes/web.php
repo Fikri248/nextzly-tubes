@@ -7,6 +7,7 @@ use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\ReportController;
 
 // ========================================
@@ -54,6 +55,14 @@ Route::middleware('admin.auth')->prefix('admin')->name('admin.')->group(function
     Route::resource('customers', CustomerController::class)->except(['show']);
     Route::get('/customers/{customer}/transactions', [CustomerController::class, 'transactions'])
         ->name('customers.transactions');
+
+    // Transactions Management
+    Route::get('/transactions', [TransactionController::class, 'index'])
+        ->name('transactions.index');
+    Route::patch('/transactions/{transaction}/status', [TransactionController::class, 'updateStatus'])
+        ->name('transactions.updateStatus');
+    Route::delete('/transactions/{transaction}', [TransactionController::class, 'destroy'])
+        ->name('transactions.destroy');
 
     // Reports & Export
     Route::prefix('reports')->name('reports.')->group(function () {
