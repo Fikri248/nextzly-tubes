@@ -96,6 +96,7 @@
                         <th class="px-6 py-4 text-right font-semibold text-slate-600">Total</th>
                         <th class="px-6 py-4 text-center font-semibold text-slate-600">Status</th>
                         <th class="px-6 py-4 text-left font-semibold text-slate-600">Tanggal</th>
+                        <th class="px-6 py-4 text-left font-semibold text-slate-600">Catatan</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -149,10 +150,13 @@
                         <td class="px-6 py-4 text-slate-500 text-xs">
                             {{ $transaction->created_at->format('d M Y, H:i') }}
                         </td>
+                        <td class="px-6 py-4 text-slate-600 text-xs">
+                            {{ $transaction->status_note ?? '-' }}
+                        </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-12 text-center">
+                        <td colspan="6" class="px-6 py-12 text-center">
                             <div class="flex flex-col items-center gap-2">
                                 <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
                                     <i class="bi bi-receipt text-2xl"></i>
