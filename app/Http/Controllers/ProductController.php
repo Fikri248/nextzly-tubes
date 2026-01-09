@@ -49,6 +49,13 @@ class ProductController extends Controller
             'durasi' => 'required|integer|min:0',
             'stok' => 'required|integer|min:0',
             'status' => 'required|in:tersedia,habis',
+        ], [
+            'category_id.required' => 'Kategori wajib dipilih.',
+            'category_id.exists' => 'Kategori tidak valid.',
+            'harga.required' => 'Harga wajib diisi.',
+            'harga.numeric' => 'Harga harus berupa angka.',
+            'stok.required' => 'Stok wajib diisi.',
+            'stok.integer' => 'Stok harus berupa angka bulat.',
         ]);
 
         // Handle logo upload
@@ -57,6 +64,14 @@ class ProductController extends Controller
             $logoName = time() . '_' . Str::slug($validated['nama_produk']) . '.' . $logo->getClientOriginalExtension();
             $logo->move(public_path('logo'), $logoName);
             $validated['logo'] = $logoName;
+        } else {
+            $validated['logo'] = $validated['logo'] ?? '';
+        }
+
+        if ((int) $validated['stok'] === 0) {
+            $validated['status'] = 'habis';
+        } else {
+            $validated['status'] = 'tersedia';
         }
 
         Product::create($validated);
@@ -170,6 +185,13 @@ class ProductController extends Controller
             'durasi' => 'required|integer|min:0',
             'stok' => 'required|integer|min:0',
             'status' => 'required|in:tersedia,habis',
+        ], [
+            'category_id.required' => 'Kategori wajib dipilih.',
+            'category_id.exists' => 'Kategori tidak valid.',
+            'harga.required' => 'Harga wajib diisi.',
+            'harga.numeric' => 'Harga harus berupa angka.',
+            'stok.required' => 'Stok wajib diisi.',
+            'stok.integer' => 'Stok harus berupa angka bulat.',
         ]);
 
         // Handle logo upload
@@ -183,6 +205,12 @@ class ProductController extends Controller
             $logoName = time() . '_' . Str::slug($validated['nama_produk']) . '.' . $logo->getClientOriginalExtension();
             $logo->move(public_path('logo'), $logoName);
             $validated['logo'] = $logoName;
+        }
+
+        if ((int) $validated['stok'] === 0) {
+            $validated['status'] = 'habis';
+        } else {
+            $validated['status'] = 'tersedia';
         }
 
         $product->update($validated);

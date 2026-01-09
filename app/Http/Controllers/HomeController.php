@@ -14,7 +14,8 @@ class HomeController extends Controller
         $kategori = $request->input('kategori');
 
         $query = Product::with('category')
-            ->where('status', 'tersedia'); // ← HANYA TAMPILKAN YANG TERSEDIA
+            ->where('status', 'tersedia')
+            ->where('stok', '>', 0);
 
         // Search
         if ($search) {
@@ -35,3 +36,4 @@ class HomeController extends Controller
         return view('home', compact('products', 'categories', 'search', 'kategori'));
     }
 }
+
