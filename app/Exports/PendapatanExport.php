@@ -19,17 +19,29 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 class PendapatanExport implements FromCollection, WithHeadings, WithStyles, WithTitle, WithColumnWidths, WithEvents
 {
-    protected $bulanIni;
-    protected $namaBulan;
+    protected $startDate;
+    protected $endDate;
+    protected $periodeLabel;
     protected $totalPendapatan;
     protected $pajak;
     protected $totalDenganPajak;
 
-    public function __construct()
+    public function __construct(?string $startDate = null, ?string $endDate = null, ?string $periodeLabel = null)
     {
-        $this->bulanIni = Carbon::now();
-        $this->namaBulan = $this->bulanIni->locale('id')->translatedFormat('F Y');
-        $this->totalPendapatan = Transaction::where('status', 'success')->sum('total_harga');
+        if ($startDate || $endDate) {
+            $this->startDate = Carbon::parse($startDate ?? Carbon::now()->startOfMonth()->toDateString())->startOfDay();
+            $this->endDate = Carbon::parse($endDate ?? Carbon::now()->toDateString())->endOfDay();
+            $this->periodeLabel = $periodeLabel ?: $this->startDate->locale('id')->translatedFormat('d M Y') . ' - ' . $this->endDate->locale('id')->translatedFormat('d M Y');
+        } else {
+            $baseDate = Carbon::now();
+            $this->startDate = $baseDate->copy()->startOfMonth();
+            $this->endDate = $baseDate->copy()->endOfMonth();
+            $this->periodeLabel = $periodeLabel ?: $baseDate->locale('id')->translatedFormat('F Y');
+        }
+
+        $this->totalPendapatan = Transaction::where('status', 'success')
+            ->whereBetween('created_at', [$this->startDate, $this->endDate])
+            ->sum('total_harga');
         $this->pajak = $this->totalPendapatan * 0.11;
         $this->totalDenganPajak = $this->totalPendapatan + $this->pajak;
     }
@@ -46,6 +58,7 @@ class PendapatanExport implements FromCollection, WithHeadings, WithStyles, With
             )
             ->join('products', 'transactions.product_id', '=', 'products.id')
             ->where('transactions.status', 'success')
+            ->whereBetween('transactions.created_at', [$this->startDate, $this->endDate])
             ->groupBy('products.id', 'products.nama_produk')
             ->orderByDesc('total_pendapatan')
             ->limit(10)
@@ -70,7 +83,7 @@ class PendapatanExport implements FromCollection, WithHeadings, WithStyles, With
         return [
             ['LAPORAN PENDAPATAN NEXTZLY'],
             [],
-            ['Periode:', $this->namaBulan],
+            ['Periode:', $this->periodeLabel],
             ['Tanggal Export:', now()->locale('id')->translatedFormat('d F Y H:i:s')],
             [],
             ['RINGKASAN PENDAPATAN'],

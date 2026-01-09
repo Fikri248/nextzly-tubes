@@ -17,37 +17,16 @@ class ReportController extends Controller
     /**
      * Show laporan dashboard
      */
-    public function index()
+    public function index(Request $request)
     {
-        $bulanIni = Carbon::now();
-        $namaBulan = $bulanIni->locale('id')->translatedFormat('F Y');
+        $report = $this->buildSalesReport($request, 15);
 
-        // Data summary
-        $totalPendapatan = Transaction::where('status', 'success')
-            ->sum('total_harga');
-        $pajak = $totalPendapatan * 0.11;
-        $totalDenganPajak = $totalPendapatan + $pajak;
-
-        // Data bulanan
-        $pendapatanBulanIni = Transaction::where('status', 'success')
-            ->whereMonth('created_at', $bulanIni->month)
-            ->whereYear('created_at', $bulanIni->year)
-            ->sum('total_harga');
-
-        // Detail transaksi (Top 15)
-        $transaksi = Transaction::select(
-                'transactions.id',
-                'products.nama_produk',
-                'transactions.quantity',
-                'transactions.total_harga',
-                'transactions.created_at',
-                'transactions.status'
-            )
-            ->join('products', 'transactions.product_id', '=', 'products.id')
-            ->where('transactions.status', 'success')
-            ->orderBy('transactions.created_at', 'desc')
-            ->limit(15)
-            ->get();
+        $namaBulan = $report['period']['label'];
+        $totalPendapatan = $report['summary']['total_pendapatan'];
+        $pajak = $report['summary']['pajak'];
+        $totalDenganPajak = $report['summary']['total_dengan_pajak'];
+        $pendapatanBulanIni = $report['summary']['total_pendapatan'];
+        $transaksi = $report['transactions'];
 
         return view('admin.reports.index', compact(
             'namaBulan',
@@ -55,57 +34,26 @@ class ReportController extends Controller
             'pajak',
             'totalDenganPajak',
             'pendapatanBulanIni',
-            'transaksi'
+            'transaksi',
+            'report'
         ));
     }
 
     /**
      * Export PDF - Laporan Pendapatan
      */
-    public function exportPendapatanPDF()
+    public function exportPendapatanPDF(Request $request)
     {
-        $bulanIni = Carbon::now();
-        $namaBulan = $bulanIni->locale('id')->translatedFormat('F Y');
+        $report = $this->buildSalesReport($request);
+        $namaBulan = $report['period']['label'];
         $timestamp = Carbon::now()->format('Ymd_His');
 
-        // Data summary
-        $totalPendapatan = Transaction::where('status', 'success')
-            ->sum('total_harga');
-        $pajak = $totalPendapatan * 0.11;
-        $totalDenganPajak = $totalPendapatan + $pajak;
-
-        // Data bulanan
-        $pendapatanBulanIni = Transaction::where('status', 'success')
-            ->whereMonth('created_at', $bulanIni->month)
-            ->whereYear('created_at', $bulanIni->year)
-            ->sum('total_harga');
-
-        // Data transaksi detail
-        $transaksi = Transaction::select(
-                'transactions.id',
-                'products.nama_produk',
-                'transactions.quantity',
-                'transactions.total_harga',
-                'transactions.created_at',
-                'transactions.status'
-            )
-            ->join('products', 'transactions.product_id', '=', 'products.id')
-            ->where('transactions.status', 'success')
-            ->orderBy('transactions.created_at', 'desc')
-            ->get();
-
-        // Data per produk (top 10)
-        $penjualanPerProduk = Transaction::select(
-                'products.nama_produk',
-                DB::raw('SUM(transactions.quantity) as total_terjual'),
-                DB::raw('SUM(transactions.total_harga) as total_pendapatan')
-            )
-            ->join('products', 'transactions.product_id', '=', 'products.id')
-            ->where('transactions.status', 'success')
-            ->groupBy('products.id', 'products.nama_produk')
-            ->orderByDesc('total_pendapatan')
-            ->limit(10)
-            ->get();
+        $totalPendapatan = $report['summary']['total_pendapatan'];
+        $pajak = $report['summary']['pajak'];
+        $totalDenganPajak = $report['summary']['total_dengan_pajak'];
+        $pendapatanBulanIni = $report['summary']['total_pendapatan'];
+        $transaksi = $report['transactions'];
+        $penjualanPerProduk = $report['top_products']['by_revenue'];
 
         $pdf = Pdf::loadView('admin.reports.pdf.pendapatan', compact(
             'namaBulan',
@@ -174,10 +122,10 @@ class ReportController extends Controller
     /**
      * Export PDF - Laporan Per Kategori
      */
-    public function exportKategoriPDF()
+    public function exportKategoriPDF(Request $request)
     {
-        $bulanIni = Carbon::now();
-        $namaBulan = $bulanIni->locale('id')->translatedFormat('F Y');
+        $period = $this->resolveReportPeriod($request);
+        $namaBulan = $period['label'];
         $timestamp = Carbon::now()->format('Ymd_His');
 
         $kategoriData = Transaction::select(
@@ -189,8 +137,7 @@ class ReportController extends Controller
             ->join('products', 'transactions.product_id', '=', 'products.id')
             ->join('categories', 'products.category_id', '=', 'categories.id')
             ->where('transactions.status', 'success')
-            ->whereMonth('transactions.created_at', $bulanIni->month)
-            ->whereYear('transactions.created_at', $bulanIni->year)
+            ->whereBetween('transactions.created_at', [$period['start'], $period['end']])
             ->groupBy('categories.id', 'categories.nama_kategori')
             ->orderByDesc('total_pendapatan')
             ->get();
@@ -216,14 +163,14 @@ class ReportController extends Controller
     /**
      * Export Excel - Laporan Pendapatan
      */
-    public function exportPendapatanExcel()
+    public function exportPendapatanExcel(Request $request)
     {
-        $bulanIni = Carbon::now();
-        $namaBulan = $bulanIni->locale('id')->translatedFormat('F Y');
+        $period = $this->resolveReportPeriod($request);
+        $namaBulan = $period['label'];
         $timestamp = Carbon::now()->format('Ymd_His');
 
         return Excel::download(
-            new PendapatanExport(),
+            new PendapatanExport($period['start_date'], $period['end_date'], $period['label']),
             'Nextzly_Laporan_Pendapatan_' . str_replace(' ', '_', $namaBulan) . '_' . $timestamp . '.xlsx'
         );
     }
@@ -246,15 +193,113 @@ class ReportController extends Controller
     /**
      * Export Excel - Laporan Kategori
      */
-    public function exportKategoriExcel()
+    public function exportKategoriExcel(Request $request)
     {
-        $bulanIni = Carbon::now();
-        $namaBulan = $bulanIni->locale('id')->translatedFormat('F Y');
+        $period = $this->resolveReportPeriod($request);
+        $namaBulan = $period['label'];
         $timestamp = Carbon::now()->format('Ymd_His');
 
         return Excel::download(
-            new KategoriExport(),
+            new KategoriExport($period['start_date'], $period['end_date'], $period['label']),
             'Nextzly_Laporan_Kategori_' . str_replace(' ', '_', $namaBulan) . '_' . $timestamp . '.xlsx'
         );
+    }
+
+    private function resolveReportPeriod(Request $request): array
+    {
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
+        $month = $request->query('month');
+        $year = $request->query('year');
+
+        if ($startDate || $endDate) {
+            $start = Carbon::parse($startDate ?? Carbon::now()->startOfMonth()->toDateString())->startOfDay();
+            $end = Carbon::parse($endDate ?? Carbon::now()->toDateString())->endOfDay();
+            $label = $start->locale('id')->translatedFormat('d M Y') . ' - ' . $end->locale('id')->translatedFormat('d M Y');
+        } else {
+            $baseDate = Carbon::createFromDate($year ?: Carbon::now()->year, $month ?: Carbon::now()->month, 1);
+            $start = $baseDate->copy()->startOfMonth();
+            $end = $baseDate->copy()->endOfMonth();
+            $label = $baseDate->locale('id')->translatedFormat('F Y');
+        }
+
+        return [
+            'start' => $start,
+            'end' => $end,
+            'label' => $label,
+            'start_date' => $start->toDateString(),
+            'end_date' => $end->toDateString(),
+        ];
+    }
+
+    private function buildSalesReport(Request $request, ?int $limitTransactions = null): array
+    {
+        $period = $this->resolveReportPeriod($request);
+
+        $baseQuery = Transaction::where('status', 'success')
+            ->whereBetween('created_at', [$period['start'], $period['end']]);
+
+        $totalPendapatan = (clone $baseQuery)->sum('total_harga');
+        $pajak = $totalPendapatan * 0.11;
+
+        $transactionsQuery = Transaction::select(
+                'transactions.id',
+                'products.nama_produk',
+                'transactions.quantity',
+                'transactions.total_harga',
+                'transactions.created_at',
+                'transactions.status'
+            )
+            ->join('products', 'transactions.product_id', '=', 'products.id')
+            ->where('transactions.status', 'success')
+            ->whereBetween('transactions.created_at', [$period['start'], $period['end']])
+            ->orderBy('transactions.created_at', 'desc');
+
+        if ($limitTransactions) {
+            $transactionsQuery->limit($limitTransactions);
+        }
+
+        $topByRevenue = Transaction::select(
+                'products.nama_produk',
+                DB::raw('SUM(transactions.quantity) as total_terjual'),
+                DB::raw('SUM(transactions.total_harga) as total_pendapatan'),
+                DB::raw('COUNT(transactions.id) as jumlah_transaksi')
+            )
+            ->join('products', 'transactions.product_id', '=', 'products.id')
+            ->where('transactions.status', 'success')
+            ->whereBetween('transactions.created_at', [$period['start'], $period['end']])
+            ->groupBy('products.id', 'products.nama_produk')
+            ->orderByDesc('total_pendapatan')
+            ->limit(10)
+            ->get();
+
+        $topByCount = Transaction::select(
+                'products.nama_produk',
+                DB::raw('COUNT(transactions.id) as jumlah_transaksi'),
+                DB::raw('SUM(transactions.total_harga) as total_pendapatan')
+            )
+            ->join('products', 'transactions.product_id', '=', 'products.id')
+            ->where('transactions.status', 'success')
+            ->whereBetween('transactions.created_at', [$period['start'], $period['end']])
+            ->groupBy('products.id', 'products.nama_produk')
+            ->orderByDesc('jumlah_transaksi')
+            ->limit(10)
+            ->get();
+
+        return [
+            'period' => $period,
+            'summary' => [
+                'total_pendapatan' => $totalPendapatan,
+                'pajak' => $pajak,
+                'pendapatan_bersih' => $totalPendapatan - $pajak,
+                'total_dengan_pajak' => $totalPendapatan + $pajak,
+                'jumlah_transaksi' => (clone $baseQuery)->count(),
+            ],
+            'transactions' => $transactionsQuery->get(),
+            'top_products' => [
+                'by_revenue' => $topByRevenue,
+                'by_count' => $topByCount,
+            ],
+        ];
     }
 }
