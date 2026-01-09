@@ -38,7 +38,7 @@
     </div>
 
     {{-- STATS --}}
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
         <div class="bg-white rounded-xl border border-slate-200 p-4">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-lg bg-sky-100 flex items-center justify-center">
@@ -57,7 +57,18 @@
                 </div>
                 <div>
                     <p class="text-xs text-slate-500">Lunas</p>
-                    <p class="text-lg font-bold text-slate-800">{{ $transactions->whereIn('status', ['paid', 'success'])->count() }}</p>
+                    <p class="text-lg font-bold text-slate-800">{{ $transactions->where('status', 'success')->count() }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 p-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-sky-100 flex items-center justify-center">
+                    <i class="bi bi-pie-chart text-sky-600"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-500">Sebagian</p>
+                    <p class="text-lg font-bold text-slate-800">{{ $transactions->where('status', 'partial')->count() }}</p>
                 </div>
             </div>
         </div>
@@ -116,7 +127,7 @@
                             @php
                                 $statusColors = [
                                     'pending' => 'bg-amber-100 text-amber-700',
-                                    'paid' => 'bg-emerald-100 text-emerald-700',
+                                    'partial' => 'bg-sky-100 text-sky-700',
                                     'success' => 'bg-emerald-100 text-emerald-700',
                                     'cancelled' => 'bg-red-100 text-red-700',
                                     'expired' => 'bg-slate-100 text-slate-500',
@@ -124,7 +135,7 @@
                                 ];
                                 $statusLabels = [
                                     'pending' => 'Pending',
-                                    'paid' => 'Lunas',
+                                    'partial' => 'Dibayar Sebagian',
                                     'success' => 'Success',
                                     'cancelled' => 'Dibatalkan',
                                     'expired' => 'Kadaluarsa',

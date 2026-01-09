@@ -61,6 +61,7 @@ class TransactionController extends Controller
         $stats = [
             'total' => (clone $statsQuery)->count(),
             'pending' => (clone $statsQuery)->where('status', 'pending')->count(),
+            'partial' => (clone $statsQuery)->where('status', 'partial')->count(),
             'success' => (clone $statsQuery)->where('status', 'success')->count(),
             'failed' => (clone $statsQuery)->where('status', 'failed')->count(),
             'cancelled' => (clone $statsQuery)->where('status', 'cancelled')->count(),
@@ -75,7 +76,8 @@ class TransactionController extends Controller
     public function updateStatus(Request $request, Transaction $transaction)
     {
         $request->validate([
-            'status' => 'required|in:pending,success,failed,cancelled',
+            'status' => 'required|in:pending,partial,success,failed,cancelled',
+            'status_note' => 'nullable|string|max:1000',
         ]);
 
         $oldStatus = $transaction->status;
@@ -95,13 +97,24 @@ class TransactionController extends Controller
             }
         }
 
-        $transaction->update([
+        $updateData = [
             'status' => $newStatus,
             'paid_at' => $newStatus === 'success' ? now() : $transaction->paid_at,
-        ]);
+        ];
+
+        if ($request->filled('status_note')) {
+            $updateData['status_note'] = $request->status_note;
+        }
+
+        if ($oldStatus !== $newStatus) {
+            $updateData['status_changed_at'] = now();
+        }
+
+        $transaction->update($updateData);
 
         $statusLabels = [
             'pending' => 'Pending',
+            'partial' => 'Dibayar Sebagian',
             'success' => 'Success',
             'failed' => 'Gagal',
             'cancelled' => 'Dibatalkan',
