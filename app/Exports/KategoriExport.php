@@ -19,13 +19,22 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 class KategoriExport implements FromCollection, WithHeadings, WithStyles, WithTitle, WithColumnWidths, WithEvents
 {
-    protected $bulanIni;
-    protected $namaBulan;
+    protected $startDate;
+    protected $endDate;
+    protected $periodeLabel;
 
-    public function __construct()
+    public function __construct(?string $startDate = null, ?string $endDate = null, ?string $periodeLabel = null)
     {
-        $this->bulanIni = Carbon::now();
-        $this->namaBulan = $this->bulanIni->locale('id')->translatedFormat('F Y');
+        if ($startDate || $endDate) {
+            $this->startDate = Carbon::parse($startDate ?? Carbon::now()->startOfMonth()->toDateString())->startOfDay();
+            $this->endDate = Carbon::parse($endDate ?? Carbon::now()->toDateString())->endOfDay();
+            $this->periodeLabel = $periodeLabel ?: $this->startDate->locale('id')->translatedFormat('d M Y') . ' - ' . $this->endDate->locale('id')->translatedFormat('d M Y');
+        } else {
+            $baseDate = Carbon::now();
+            $this->startDate = $baseDate->copy()->startOfMonth();
+            $this->endDate = $baseDate->copy()->endOfMonth();
+            $this->periodeLabel = $periodeLabel ?: $baseDate->locale('id')->translatedFormat('F Y');
+        }
     }
 
     /**
@@ -42,8 +51,7 @@ class KategoriExport implements FromCollection, WithHeadings, WithStyles, WithTi
             ->join('products', 'transactions.product_id', '=', 'products.id')
             ->join('categories', 'products.category_id', '=', 'categories.id')
             ->where('transactions.status', 'success')
-            ->whereMonth('transactions.created_at', $this->bulanIni->month)
-            ->whereYear('transactions.created_at', $this->bulanIni->year)
+            ->whereBetween('transactions.created_at', [$this->startDate, $this->endDate])
             ->groupBy('categories.id', 'categories.nama_kategori')
             ->orderByDesc('total_pendapatan')
             ->get()
@@ -68,7 +76,7 @@ class KategoriExport implements FromCollection, WithHeadings, WithStyles, WithTi
         return [
             ['LAPORAN PENJUALAN PER KATEGORI - NEXTZLY'],
             [],
-            ['Periode:', $this->namaBulan],
+            ['Periode:', $this->periodeLabel],
             ['Tanggal Export:', now()->locale('id')->translatedFormat('d F Y H:i:s')],
             [],
             ['KATEGORI TERLARIS BULAN INI'],
