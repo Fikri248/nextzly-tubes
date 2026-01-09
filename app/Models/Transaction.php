@@ -17,12 +17,15 @@ class Transaction extends Model
         'total_harga',
         'metode_pembayaran',
         'status',
+        'status_note',
+        'status_changed_at',
         'catatan',
         'paid_at',
     ];
 
     protected $casts = [
         'paid_at' => 'datetime',
+        'status_changed_at' => 'datetime',
         'total_harga' => 'decimal:2',
     ];
 
